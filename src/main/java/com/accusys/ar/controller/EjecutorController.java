@@ -42,14 +42,14 @@ public class EjecutorController {
     @Value("${ruta.archivo}")
     public String rutaArchivo;
 
-    public String nombreArchivo = "transaccion-transTest1-1581515580843.json";
+    public String nombreArchivo = "";
     @Autowired
     UtilRobot util;
 
     public void importarTransaccion(String[] args) throws InterruptedException {
         this.parametros = args;
-        // if (args.length>0) {
-        //nombreArchivo = args[0];
+         if (args.length>0) {
+        nombreArchivo = args[0];
         boolean flag = true;
         TransaccionExport export = new TransaccionExport();
         JSONParser parser = new JSONParser();
@@ -73,10 +73,10 @@ public class EjecutorController {
             System.err.println("codError:1003," + e.getMessage());
             //manejo de error
         }
-//        }else{
-//            System.out.println("ruta del Archivo ---->"+rutaArchivo + nombreArchivo);
-//            System.err.println("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
-//        }
+        }else{
+            System.out.println("ruta del Archivo ---->"+rutaArchivo + nombreArchivo);
+            System.err.println("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
+        }
     }
 
     private String getScreenAsString(Screen5250 screen) {
@@ -102,33 +102,35 @@ public class EjecutorController {
         return pantalla;
     }
 
-    private Export findParam(String indice) {
+    private String findParam(String indice) {
         Export exp = new Export();
         exp.setFlag(false);
-        String aux = "";
-        
+        String aux = "", aux2 = "",valor = "",valor2 = "";
 
         if (util.comparadorDeCaracteres(indice, "*")) {
-            
-            indice = indice.split(":")[0];
-            indice = pantalla+"-P"+indice.split("_")[1];
-
+            valor2 = indice.split(":")[0];
+            valor = indice;            
+            aux2 = pantalla+"-F"+(Integer.valueOf(valor2.split("_")[1])+1);
             for (String parametro : parametros) {
-                if (util.comparadorDeCaracteres(parametro, indice)) {
+                if (util.comparadorDeCaracteres(parametro, aux2)) {
                     exp.setFlag(true);
                     aux = parametro.split("-")[1].split(":")[1];
                     if (aux.length() > 0) {
                         exp.setDescripcion(aux);
+                        valor =valor2+":"+aux;
+                        
                     } else {
+                        valor = indice;
                         exp.setFlag(false);
                     }
                 }
             }
         } else {
-
+            valor = indice;
+            exp.setFlag(false);
         }
 
-        return exp;
+        return valor;
     }
 
     private void printScreen2(Screen5250 screen) {
@@ -229,13 +231,15 @@ public class EjecutorController {
                     boolean flag2 = true;
                     //pantallaDto.setPantallaNumero(listPatalla.size() + 1);
                     String host = dataForm[6];
-                    findParam(host);
+                    host = findParam(host);
                     host = host.split(":")[1];
                     host = host.replace("*", "");
                     String usuario = dataForm[7];
+                    usuario = findParam(usuario);
                     usuario = usuario.split(":")[1];
                     usuario = usuario.replace("*", "");
                     String clave = dataForm[8];
+                    clave = findParam(clave);
                     clave = clave.split(":")[1];
                     clave = clave.replace("*", "");
                     screen = connect(host, usuario, clave);
@@ -820,6 +824,7 @@ public class EjecutorController {
             Thread.sleep(3000L);
             for (int i = 7; i < dataForm.length; i++) {
                 String datos = dataForm[i];
+                datos = findParam(datos);
                 String[] datoAux = datos.split(":");
                 String indice = datoAux[0].split("_")[1];
                 String valor = datoAux[1];

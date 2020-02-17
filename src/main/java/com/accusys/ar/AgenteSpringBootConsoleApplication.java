@@ -26,9 +26,10 @@ public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-       
+  
+               String[ ] nombre = {"nombredeArchivo", "P1-F1:172.28.194.101", "P1-F2:CABOT"};   
         
-        ejecutor.importarTransaccion(args);
+        ejecutor.importarTransaccion(nombre);
  
 
         exit(0);
