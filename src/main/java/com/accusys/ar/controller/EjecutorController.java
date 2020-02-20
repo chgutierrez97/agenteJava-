@@ -37,44 +37,45 @@ public class EjecutorController {
     public boolean conectado;
     public static Session5250 sessions = null;
     public String pantalla;
+    public String pantalla2;
     public String[] parametros;
 
     @Value("${ruta.archivo}")
     public String rutaArchivo;
 
-    public String nombreArchivo = "";
+    public String nombreArchivo = "transaccion-transTest1.json";
     @Autowired
     UtilRobot util;
 
     public void importarTransaccion(String[] args) throws InterruptedException {
         this.parametros = args;
-         if (args.length>0) {
-        nombreArchivo = args[0];
-        boolean flag = true;
-        TransaccionExport export = new TransaccionExport();
-        JSONParser parser = new JSONParser();
-        String jsonString = "";
-        Gson gson = new Gson();
-        try {
-            System.out.println("ruta del Archivo " + rutaArchivo + nombreArchivo);
-            Object obj = parser.parse(new FileReader(rutaArchivo + nombreArchivo));
-            JSONObject jsonObject = (JSONObject) obj;
-            jsonString = jsonObject.toString();
-            export = gson.fromJson(jsonString, TransaccionExport.class);
-            String respuestaSimukador = simuladorAs(export.getListaPantalla());
-            System.out.println(respuestaSimukador);
-        } catch (FileNotFoundException e) {
-            System.err.println("codError:1002," + e.getMessage());
-            //manejo de error
-        } catch (IOException e) {
-            e.printStackTrace();
-            //manejo de error
-        } catch (ParseException e) {
-            System.err.println("codError:1003," + e.getMessage());
-            //manejo de error
-        }
-        }else{
-            System.out.println("ruta del Archivo ---->"+rutaArchivo + nombreArchivo);
+        if (args.length > 0) {
+            nombreArchivo = args[0];
+            boolean flag = true;
+            TransaccionExport export = new TransaccionExport();
+            JSONParser parser = new JSONParser();
+            String jsonString = "";
+            Gson gson = new Gson();
+            try {
+               
+                Object obj = parser.parse(new FileReader(rutaArchivo + nombreArchivo));
+                JSONObject jsonObject = (JSONObject) obj;
+                jsonString = jsonObject.toString();
+                export = gson.fromJson(jsonString, TransaccionExport.class);
+                String respuestaSimukador = simuladorAs(export.getListaPantalla());
+                
+            } catch (FileNotFoundException e) {
+                System.err.println("codError:1002," + e.getMessage());
+                //manejo de error
+            } catch (IOException e) {
+                e.printStackTrace();
+                //manejo de error
+            } catch (ParseException e) {
+                System.err.println("codError:1003," + e.getMessage());
+                //manejo de error
+            }
+        } else {
+            System.out.println("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
             System.err.println("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
         }
     }
@@ -105,20 +106,20 @@ public class EjecutorController {
     private String findParam(String indice) {
         Export exp = new Export();
         exp.setFlag(false);
-        String aux = "", aux2 = "",valor = "",valor2 = "";
+        String aux = "", aux2 = "", valor = "", valor2 = "";
 
         if (util.comparadorDeCaracteres(indice, "*")) {
             valor2 = indice.split(":")[0];
-            valor = indice;            
-            aux2 = pantalla+"-F"+(Integer.valueOf(valor2.split("_")[1])+1);
+            valor = indice;
+            aux2 = pantalla2 + "-F" + (Integer.valueOf(valor2.split("_")[1]) + 1);
             for (String parametro : parametros) {
                 if (util.comparadorDeCaracteres(parametro, aux2)) {
                     exp.setFlag(true);
                     aux = parametro.split("-")[1].split(":")[1];
                     if (aux.length() > 0) {
                         exp.setDescripcion(aux);
-                        valor =valor2+":"+aux;
-                        
+                        valor = valor2 + ":" + aux;
+
                     } else {
                         valor = indice;
                         exp.setFlag(false);
@@ -211,6 +212,37 @@ public class EjecutorController {
         return process;
     }
 
+    private Boolean procesado(List<PantallaDto> listaActual, int indice) throws ExcepcionBaseMsn {
+        int longitud = listaActual.size();
+        Boolean flag = false;
+
+        if (longitud > (indice + 1)) {
+            PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
+
+            if (pantallaSiguiente.getInputs().size() > 0) {
+                if (!(pantallaSiguiente.getScrips().contains("opt"))) {
+                    String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
+                    PantallaDto pant = new PantallaDto();
+                    if (util.comparadorDeCaracteres(getScreenAsString(screen), texto)) {
+                        pant.setTextoPantalla(printScreen(screen));
+                        flag = true;
+                    } else {
+                        if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
+                            pant.setTextoPantalla(printScreen(screen));
+                            throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
+                        } else {
+                            pant.setTextoPantalla(printScreen(screen));
+                            throw new ExcepcionBaseMsn("Codigo:0020,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
+                        }
+                    }
+                }
+            }
+        } else {
+            flag = true;
+        }
+        return flag;
+    }
+
     public String simuladorAs(List<PantallaDto> listaActual) {
         //listPatallaSiluladora.clear();
         String[] dataForm = new String[70];
@@ -269,36 +301,11 @@ public class EjecutorController {
                                             if (expresionId > 0) {
                                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                                 if (expReq.getFlag()) {
-                                                    int longitud = listaActual.size();
 
-                                                    if (longitud > (indice + 1)) {
-                                                        PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-
-                                                        if (pantallaSiguiente.getInputs().size() > 0) {
-                                                            if (pantallaSiguiente.getScrips().contains("opt")) {
-
-                                                            }
-                                                            String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                                            PantallaDto pant = new PantallaDto();
-                                                            if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                break;
-                                                            } else {
-                                                                if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                                    throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                                } else {
-                                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                                    throw new ExcepcionBaseMsn("Codigo:0020,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                                }
-                                                            }
-                                                        }
-                                                    } else {
+                                                    if (procesado(listaActual, indice)) {
                                                         break;
                                                     }
+
                                                     Thread.sleep(2000L);
 
                                                 } else {
@@ -315,33 +322,11 @@ public class EjecutorController {
                                                     // manejar el accion programada para la expresion Mostrar pantalla o teclear [Enter] u otra tecla.                                                    
                                                 }
                                             } else {
-                                                int longitud = listaActual.size();
-                                                if (longitud > (indice + 1)) {
-                                                    PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                                    if (pantallaSiguiente.getInputs().size() > 0) {
-                                                        String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                                        PantallaDto pant = new PantallaDto();
-                                                        if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                            pant.setTextoPantalla(printScreen(screen));
 
-                                                            break;
-                                                        } else {
-                                                            if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                            } else {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0020,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                            }
-                                                        }
-                                                    } else {
-                                                        break;
-                                                    }
-                                                } else if (longitud == (indice + 1)) {
+                                                if (procesado(listaActual, indice)) {
                                                     break;
                                                 }
+//                                                
                                                 Thread.sleep(2000L);
 
                                             }
@@ -373,34 +358,15 @@ public class EjecutorController {
                                         if (expresionId > 0) {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
-                                                if (longitud > (indice + 1)) {
-                                                    PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                                    if (pantallaSiguiente.getInputs().size() > 0) {
-                                                        String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                                        PantallaDto pant = new PantallaDto();
-                                                        if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                            pant.setTextoPantalla(printScreen(screen));
 
-                                                            flag2 = false;
-                                                        } else {
-                                                            if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                            } else {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0020,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
+                                                if (procesado(listaActual, indice)) {
                                                     flag2 = false;
                                                 }
+
                                                 Thread.sleep(2000L);
 
                                             } else {
-                                                Boolean a = true;
+
                                                 PantallaDto pant = new PantallaDto();
                                                 if (actExp == "i") {
                                                     pant.setTextoPantalla(printScreen(screen));
@@ -409,30 +375,10 @@ public class EjecutorController {
                                                 }
                                             }
                                         } else {
-                                            if (longitud > (indice + 1)) {
-                                                PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                                if (pantallaSiguiente.getInputs().size() > 0) {
-                                                    String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                                    PantallaDto pant = new PantallaDto();
-                                                    if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                        pant.setTextoPantalla(printScreen(screen));
-
-                                                        flag2 = false;
-                                                    } else {
-                                                        if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                            pant.setTextoPantalla(printScreen(screen));
-
-                                                            throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                        } else {
-                                                            pant.setTextoPantalla(printScreen(screen));
-
-                                                            throw new ExcepcionBaseMsn("Codigo:0020,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                        }
-                                                    }
-                                                }
-                                            } else {
+                                            if (procesado(listaActual, indice)) {
                                                 flag2 = false;
                                             }
+//                                           
                                             Thread.sleep(2000L);
 
                                         }
@@ -458,28 +404,9 @@ public class EjecutorController {
                                 if (expReq.getFlag()) {
 
                                     int longitud = listaActual.size();
+                                    procesado(listaActual, indice);
 
-                                    if (longitud > (indice + 1)) {
-                                        PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                        if (pantallaSiguiente.getInputs().size() > 0) {
-                                            String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                            PantallaDto pant = new PantallaDto();
-                                            if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                pant.setTextoPantalla(printScreen(screen));
-
-                                            } else {
-                                                if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                    throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                                } else {
-                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                    throw new ExcepcionBaseMsn("Codigo:0020,error en panatalla no manejado");
-                                                }
-                                            }
-                                        }
-                                    }
+//                                   
                                     Thread.sleep(2000L);
 
                                 } else {
@@ -499,29 +426,7 @@ public class EjecutorController {
 
                                 }
                             } else {
-                                int longitud = listaActual.size();
-
-                                if (longitud > (indice + 1)) {
-                                    PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                    if (pantallaSiguiente.getInputs().size() > 0) {
-                                        String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
-                                        PantallaDto pant = new PantallaDto();
-                                        if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                            pant.setTextoPantalla(printScreen(screen));
-
-                                        } else {
-                                            if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
-                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                            } else {
-                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                throw new ExcepcionBaseMsn("Codigo:0020,error en panatalla no manejado");
-                                            }
-                                        }
-                                    }
-                                }
+                                procesado(listaActual, indice);
                                 Thread.sleep(2000L);
 
                             }
@@ -533,10 +438,6 @@ public class EjecutorController {
                     indice++;
                 } else if (scrits.contains("oper")) {
                     boolean flag2 = true;
-                    operaciones(dataForm);
-
-                    System.out.println(getScreenAsString(screen).trim());
-                    // pantallaDto.setPantallaNumero(listPatalla.size() + 1);
 
                     if (sessions.isConnected()) {
                         String idCiclo = dataForm[4].split(":")[1];
@@ -548,39 +449,17 @@ public class EjecutorController {
                                     // segmento de ciclo for de la operaciones
                                     if (numInt > 0) {
                                         for (int j = 0; j < numInt; j++) {
-
+                                            operaciones(dataForm);
                                             String pantallaTexto = getScreenAsString(screen).trim();
                                             if (expresionId > 0) {
                                                 Export expReq = ExpresionesAS4(pantallaTexto, expresionId);
                                                 if (expReq.getFlag()) {
-                                                    int longitud = listaActual.size();
-                                                    if (longitud > (indice + 1)) {
-                                                        PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                                        if (pantallaSiguiente.getInputs().size() > 0) {
-                                                            String texto = pantallaSiguiente.getInputs().get(0).getValue().trim();
-                                                            PantallaDto pant = new PantallaDto();
-                                                            if (util.comparadorDeCaracteres(pantallaTexto, texto)) {
-                                                                pant.setTextoPantalla(printScreen(screen));
 
-                                                                break;
-                                                            } else {
-                                                                if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                                    throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                                } else {
-                                                                    //printScreen2(screen);
-                                                                    pant.setTextoPantalla(printScreen(screen));
-
-                                                                    throw new ExcepcionBaseMsn("Codigo:0010,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                                }
-                                                            }
-                                                        } else {
-                                                            break;
-                                                        }
-                                                    } else {
+                                                    if (procesado(listaActual, indice)) {
                                                         break;
                                                     }
+
+//                                                    
                                                 } else {
 
                                                     // manejar el accion programada para la expresion Mostrar pantalla o teclear [Enter] u otra tecla.
@@ -596,41 +475,17 @@ public class EjecutorController {
                                                 }
                                             } else {
 
-                                                int longitud = listaActual.size();
-                                                if (longitud > (indice + 1)) {
-                                                    PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
-                                                    if (pantallaSiguiente.getInputs().size() > 0) {
-                                                        String texto = pantallaSiguiente.getInputs().get(0).getValue().trim();
-                                                        PantallaDto pant = new PantallaDto();
-                                                        if (util.comparadorDeCaracteres(pantallaTexto, texto)) {
-                                                            pant.setTextoPantalla(printScreen(screen));
-
-                                                            break;
-                                                        } else {
-                                                            if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0010,Ejecucion de pantalla alternativa");
-                                                            } else {
-                                                                //printScreen2(screen);
-                                                                pant.setTextoPantalla(printScreen(screen));
-
-                                                                throw new ExcepcionBaseMsn("Codigo:0010,Pantalla no fue reconocidad en proceso programado por el administrador de procesos");
-                                                            }
-                                                        }
-
-                                                    } else {
-                                                        break;
-                                                    }
-                                                } else {
+                                                if (procesado(listaActual, indice)) {
                                                     break;
                                                 }
+//                                                
                                             }
                                         }
                                     } else {
                                         //emitir una excceion no tiene cantidad de repeticiones 
                                         throw new ExcepcionBaseMsn("Codigo:0020,La expresion de ciclo for no posee numero de iteraciones.");
                                     }
+                                    break;
 
                                 case "w":
                                     // segmento de ciclo while de la operaciones
@@ -641,31 +496,10 @@ public class EjecutorController {
                                         if (expresionId > 0) {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
-                                                if (longitud > (indice + 1)) {
-                                                    PantallaDto flag1 = listaActual.get(indice + 1);
-                                                    String texto = flag1.getInputs().get(0).getValue().trim();
-                                                    if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                        panti.setTextoPantalla(printScreen(screen));
-
-                                                        flag2 = false;
-                                                    } else {
-                                                        if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                                            panti.setTextoPantalla(printScreen(screen));
-
-                                                            throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                                        } else {
-                                                            //printScreen2(screen);
-                                                            panti.setTextoPantalla(printScreen(screen));
-
-                                                            throw new ExcepcionBaseMsn("Codigo:0010,error en panatalla con manejado");
-
-                                                        }
-                                                        /// hacer un for buscando dentro de las pantalla alternativas el texto en pantalla si no se encuentra guardar pantalla en el log.
-                                                    }
-
-                                                } else {
+                                                if (procesado(listaActual, indice)) {
                                                     flag2 = false;
                                                 }
+//                                               
 
                                             } else {
 
@@ -683,32 +517,10 @@ public class EjecutorController {
                                             }
 
                                         } else {
-
-                                            if (longitud > (indice + 1)) {
-                                                PantallaDto flag1 = listaActual.get(indice + 1);
-                                                String texto = flag1.getInputs().get(0).getValue().trim();
-                                                if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                                    panti.setTextoPantalla(printScreen(screen));
-
-                                                    flag2 = false;
-                                                } else {
-                                                    if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                                        panti.setTextoPantalla(printScreen(screen));
-
-                                                        throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                                    } else {
-                                                        //printScreen2(screen);
-                                                        panti.setTextoPantalla(printScreen(screen));
-
-                                                        throw new ExcepcionBaseMsn("Codigo:0010,error en panatalla con manejado");
-
-                                                    }
-                                                    /// hacer un for buscando dentro de las pantalla alternativas el texto en pantalla si no se encuentra guardar pantalla en el log.
-                                                }
-
-                                            } else {
+                                            if (procesado(listaActual, indice)) {
                                                 flag2 = false;
                                             }
+//                                           
 
                                         }
                                     } while (flag2);
@@ -725,29 +537,10 @@ public class EjecutorController {
                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                 if (expReq.getFlag()) {
 
-                                    if (longitud > (indice + 1)) {
-                                        PantallaDto flag1 = listaActual.get(indice + 1);
-                                        String texto = flag1.getInputs().get(0).getValue().trim();
-                                        if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                            panti.setTextoPantalla(printScreen(screen));
-
-                                            flag2 = false;
-                                        } else {
-                                            if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                                panti.setTextoPantalla(printScreen(screen));
-
-                                                throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                            } else {
-                                                //printScreen2(screen);
-                                                panti.setTextoPantalla(printScreen(screen));
-
-                                                throw new ExcepcionBaseMsn("Codigo:0010,error en panatalla con manejado");
-
-                                            }
-
-                                        }
-
+                                    if (procesado(listaActual, indice)) {
+                                        flag2 = false;
                                     }
+//                                   
 
                                 } else {
 
@@ -764,27 +557,11 @@ public class EjecutorController {
                                     }
                                 }
                             } else {
-                                if (longitud > (indice + 1)) {
-                                    PantallaDto flag1 = listaActual.get(indice + 1);
-                                    String texto = flag1.getInputs().get(0).getValue().trim();
-                                    if (util.comparadorDeCaracteres(pantalla, texto)) {
-                                        panti.setTextoPantalla(printScreen(screen));
 
-                                        flag2 = false;
-                                    } else {
-                                        if (operacionesAlternativas(getScreenAsString(screen), listaActual, "oper")) {
-                                            panti.setTextoPantalla(printScreen(screen));
-
-                                            throw new ExcepcionBaseMsn("Codigo:0010,error manejado modulo de conexion");
-                                        } else {
-                                            printScreen2(screen);
-                                            panti.setTextoPantalla(printScreen(screen));
-
-                                            throw new ExcepcionBaseMsn("Codigo:0010,error en panatalla con manejado");
-
-                                        }
-                                    }
+                                if (procesado(listaActual, indice)) {
+                                    flag2 = false;
                                 }
+//                               
                             }
                         }
 

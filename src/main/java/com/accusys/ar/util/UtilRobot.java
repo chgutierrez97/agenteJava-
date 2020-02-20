@@ -10,6 +10,8 @@ import com.accusys.ar.modelDto.ListaMacroIO;
 import com.accusys.ar.modelDto.Persona;
 import com.accusys.ar.modelDto.Usuario;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,11 +21,14 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author MGIAccusys
  */
 @Service
+@PropertySource("classpath:application.properties")
 public class UtilRobot {
+     @Value("${paht.url.service}")
+    String urlpaht;
 
     public boolean ifValidUserExist(Usuario usuario) {
         RestTemplate restTemplate = new RestTemplate();
-        String usuarioFindUrl = "http://localhost:8080/api/findUsuarioByLogin";
+        String usuarioFindUrl = urlpaht+"findUsuarioByLogin";
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(usuarioFindUrl)
                 .queryParam("login", usuario.getUsuario());  
@@ -40,7 +45,7 @@ public class UtilRobot {
 
     public boolean ifValidPersonExist(Persona persona) {
         RestTemplate restTemplate = new RestTemplate();
-        String personaFindUrl = "http://localhost:8080/api/findPersonaByDNI";
+        String personaFindUrl = urlpaht+"findPersonaByDNI";
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(personaFindUrl)
                 // Add query parameter
@@ -58,7 +63,7 @@ public class UtilRobot {
     }
 
     public ExpresionesRegularesIO getExpresionById(Integer idExpresion) {
-        final String url = "http://localhost:8080/api/findExpresionById";
+        final String url = urlpaht+"findExpresionById";
         RestTemplate restTemplate = new RestTemplate();
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromUriString(url)
@@ -69,7 +74,7 @@ public class UtilRobot {
     }
 
     public List<ExpresionesRegularesIO> getExpresionAll() {
-        final String url = "http://localhost:8080/api/findAllExpresion";
+        final String url = urlpaht+"findAllExpresion";
         RestTemplate restTemplate = new RestTemplate();
         ListaMacroIO result = restTemplate.getForObject(url, ListaMacroIO.class);
         //System.out.println(result);
