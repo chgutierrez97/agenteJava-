@@ -18,12 +18,14 @@ public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(AgenteSpringBootConsoleApplication.class);
         app.setBannerMode(Banner.Mode.OFF);
+       
         app.run(args);
     }
 
     @Override
     public void run(String... args) throws Exception {
-
+        String[] nombres = {"transaccion-transTest1-1584375214573.json","P2-F0:5"};//,"P1-F2:ACCUSYS"
+        args = nombres;
         if (args.length > 0) {
             ejecutor.importarTransaccion(args);
         } else {
