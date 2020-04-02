@@ -24,12 +24,11 @@ public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        String[] nombres = {"transaccion-transTest1-1584375214573.json","P2-F0:5"};//,"P1-F2:ACCUSYS"
-        args = nombres;
+//        
         if (args.length > 0) {
             ejecutor.importarTransaccion(args);
         } else {
-            System.err.println("ERROR 0001:No hay variables de inicio de operacion favor verificar  ");
+            System.err.println("Codigo:0001 No hay variables de inicio de operacion favor verificar  ");
         }
         exit(0);
     }
