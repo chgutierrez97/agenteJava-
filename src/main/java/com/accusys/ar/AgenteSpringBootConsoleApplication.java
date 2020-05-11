@@ -8,8 +8,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static java.lang.System.exit;
+import org.springframework.web.context.annotation.SessionScope;
 
 @SpringBootApplication
+@SessionScope
 public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 
     @Autowired
@@ -24,7 +26,8 @@ public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        
+       String[] nombres = {"transaccion-ejemplo1-1588771158402.json"};//,"P1-F2:ACCUSYS"
+        args = nombres; 
         if (args.length > 0) {
             ejecutor.importarTransaccion(args);
         } else {

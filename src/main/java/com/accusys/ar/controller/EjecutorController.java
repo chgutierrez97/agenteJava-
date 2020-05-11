@@ -22,6 +22,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.web.context.annotation.SessionScope;
 import org.tn5250j.Session5250;
 import org.tn5250j.beans.ProtocolBean;
 import org.tn5250j.framework.tn5250.Screen5250;
@@ -31,6 +32,7 @@ import org.tn5250j.framework.tn5250.ScreenPlanes;
 
 @Service
 @PropertySource("classpath:application.properties")
+@SessionScope
 public class EjecutorController {
 
     public Screen5250 screen;
@@ -120,7 +122,7 @@ public class EjecutorController {
         exp.setFlag(false);
         String aux = "", aux2 = "", valor = "", valor2 = "";
 
-        if (util.comparadorDeCaracteres(indice, "*")) {
+        if (util.comparadorDeCaracteres2(indice, "*")) {
             valor2 = indice.split(":")[0];
             valor = indice;
             aux2 = pantalla2 + "-F" + (Integer.valueOf(valor2.split("_")[1]));
@@ -250,11 +252,25 @@ public class EjecutorController {
                 }
             }
         } else {
+            //System.out.println(printScreen1(screen));
             flag = true;
+            throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+            
         }
         return flag;
     }
 
+    public void localizadorPantalla(String[] array){  
+        for (String texto : array) {
+            if(util.comparadorDeCaracteres2(texto, "w_flagPantalla")){
+               String  actExp = texto.split(":")[1];
+                System.out.println("Guia de  "+actExp);
+                Logger.getLogger(actExp);
+            }     
+        }
+    
+    }
+    
     public void simuladorAs(List<PantallaDto> listaActual) {
         //listPatallaSiluladora.clear();
         String[] dataForm = new String[70];
@@ -262,7 +278,6 @@ public class EjecutorController {
         int indice = 0;
         try {
             for (PantallaDto pantallaDto : listaActual) {
-
                 PantallaDto panti = new PantallaDto();
                 scrits = pantallaDto.getScrips();
                 dataForm = pantallaDto.getScrips().split(",");
@@ -271,17 +286,19 @@ public class EjecutorController {
                 String actExp = dataForm[5];
                 actExp = actExp.split(":")[1];
                 actExp = actExp.replace("*", "");
+                
                 if (scrits.contains("conec")) {
+                    
                     boolean flag2 = true;
-                    String host = dataForm[6];
+                    String host = dataForm[7];
                     host = findParam(host);
                     host = host.split(":")[1];
                     host = host.replace("*", "");
-                    String usuario = dataForm[7];
+                    String usuario = dataForm[8];
                     usuario = findParam(usuario);
                     usuario = usuario.split(":")[1];
                     usuario = usuario.replace("*", "");
-                    String clave = dataForm[8];
+                    String clave = dataForm[9];
                     clave = findParam(clave);
                     clave = clave.split(":")[1];
                     clave = clave.replace("*", "");
@@ -291,6 +308,8 @@ public class EjecutorController {
                         String idCiclo = dataForm[2].split(":")[1];
                         Integer numInt = Integer.valueOf(dataForm[3].split(":")[1]);
                         Integer expresionId = Integer.valueOf(dataForm[4].split(":")[1]);
+                        
+                        localizadorPantalla(dataForm);
                         if (!idCiclo.equals("0")) {
                             switch (idCiclo) {
                                 // segmento de ciclo for de la conexion;
@@ -353,8 +372,7 @@ public class EjecutorController {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
                                                 if (procesado(listaActual, indice)) {
-                                                    flag2 = false;
-                                                   
+                                                    flag2 = false;   
                                                 }
                                                 Thread.sleep(2000L);
                                             } else {
@@ -367,13 +385,10 @@ public class EjecutorController {
                                             }
                                         } else {
                                             if (procesado(listaActual, indice)) {
-                                                flag2 = false;
-                                                
-                                                
+                                                flag2 = false;    
                                             }
                                             Thread.sleep(2000L);
                                         }
-
                                     } while (flag2);
                                     break;
                             }
@@ -399,7 +414,6 @@ public class EjecutorController {
                                         PantallaDto pant = new PantallaDto();
                                         if (actExp == "i") {
                                             pant.setTextoPantalla(printScreen(screen));
-
                                             throw new ExcepcionBaseMsn("Codigo:0020,\n"+printScreen1(screen));
                                         } else if (actExp == "r") {
                                             userField.setString(usuario);
@@ -419,6 +433,7 @@ public class EjecutorController {
 
                     indice++;
                 } else if (scrits.contains("oper")) {
+                    localizadorPantalla(dataForm);
                     boolean flag2 = true;
                     if (sessions.isConnected()) {
                         String idCiclo = dataForm[4].split(":")[1];
@@ -484,7 +499,6 @@ public class EjecutorController {
                                             }
                                         }
                                     } while (flag2);
-
                                     break;
                             }
                         } else {
@@ -547,7 +561,7 @@ public class EjecutorController {
         ScreenFields sf = screen.getScreenFields();
         try {
             Thread.sleep(3000L);
-            for (int i = 7; i < dataForm.length; i++) {
+            for (int i = 8; i < dataForm.length; i++) {
                 String datos = dataForm[i];
                 datos = findParam(datos);
                 String[] datoAux = datos.split(":");

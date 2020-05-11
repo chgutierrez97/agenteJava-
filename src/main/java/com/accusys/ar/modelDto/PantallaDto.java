@@ -14,7 +14,7 @@ public class PantallaDto {
     private String action;
     private String scrips;
     private String waccionar;
-    private  Integer idTransaccion;
+    private Integer idTransaccion;
 
     public PantallaDto() {
     }

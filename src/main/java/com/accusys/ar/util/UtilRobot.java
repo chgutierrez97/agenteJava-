@@ -9,7 +9,10 @@ import com.accusys.ar.modelDto.ExpresionesRegularesIO;
 import com.accusys.ar.modelDto.ListaMacroIO;
 import com.accusys.ar.modelDto.Persona;
 import com.accusys.ar.modelDto.Usuario;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -81,7 +84,7 @@ public class UtilRobot {
         return result.getExpresionesList();
     }
 
-    public boolean comparadorDeCaracteres(String sTexto, String sTextoBuscado) {
+    public boolean comparadorDeCaracteres2(String sTexto, String sTextoBuscado) {
         sTexto = sTexto.toLowerCase();
         sTextoBuscado = sTextoBuscado.toLowerCase();
         boolean flag = false;
@@ -94,6 +97,39 @@ public class UtilRobot {
         }
         return flag;
     }
+    
+     public boolean comparadorDeCaracteres(String sTexto, String sTextoBuscado) {
+       boolean coincidencia = false;
+        sTexto = limpiarAcentos(sTexto).toLowerCase();
+        sTextoBuscado = limpiarAcentos(sTextoBuscado).toLowerCase();
+        Pattern patron = Pattern.compile(sTextoBuscado);
+        Matcher m = patron.matcher(sTexto);
+        coincidencia = m.find();      
+        boolean flag = false;
+        int contador = 0;
+        if (sTexto.indexOf(sTextoBuscado) > -1) {
+            flag = true;
+        }
+        if (sTexto.contains("" + sTextoBuscado)) {
+            flag = true;
+        }       
+        if(coincidencia){
+            flag = true;
+        }
+        return flag;
+    }
+    
+        public static String limpiarAcentos(String cadena) {
+        String limpio = null;
+        if (cadena != null) {
+            String original = cadena;
+            String cadenaNormalize = Normalizer.normalize(original, Normalizer.Form.NFD);
+            String cadenaSinAcentos = cadenaNormalize.replaceAll("[^\\p{ASCII}]", "");
+          
+            limpio = cadenaSinAcentos;
+        }
+        return limpio;
+    } 
 //    
 
 }
