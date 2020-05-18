@@ -1,5 +1,6 @@
 package com.accusys.ar.controller;
 
+import com.accusys.ar.AgenteSpringBootConsoleApplication;
 import org.springframework.stereotype.Service;
 import com.accusys.ar.modelDto.Export;
 import com.accusys.ar.modelDto.ExpresionesRegularesIO;
@@ -17,25 +18,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.util.NumberUtils;
-import org.springframework.web.context.annotation.SessionScope;
 import org.tn5250j.Session5250;
 import org.tn5250j.beans.ProtocolBean;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenField;
 import org.tn5250j.framework.tn5250.ScreenFields;
 import org.tn5250j.framework.tn5250.ScreenPlanes;
+    
 
 @Service
 @PropertySource("classpath:application.properties")
 public class EjecutorController {
+    private static final Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
+   
 
     public Screen5250 screen;
     public boolean conectado;
@@ -46,8 +49,13 @@ public class EjecutorController {
 
     @Value("${ruta.archivo}")
     public String rutaArchivo;
+    
+    @Value("${trazaGuia}")
+    public String trazaGuia;
+    
+    
 
-    public String nombreArchivo = "transaccion-transTest1.json";
+    public String nombreArchivo = "";
     @Autowired
     UtilRobot util;
 
@@ -79,7 +87,9 @@ public class EjecutorController {
                 //manejo de error
             }
         } else {
+              log.warn("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
             System.out.println("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
+            log.warn("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
             System.err.println("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
         }
     }
@@ -199,13 +209,13 @@ public class EjecutorController {
             //printScreen(screen);
             return screen;
         } catch (UnknownHostException ex) {
-            Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+          // Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
         } catch (IllegalStateException ex) {
-            Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+           // Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
         } catch (InterruptedException ex) {
-            Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
         } //To change body of generated methods, choose Tools | Templates.
     }
@@ -290,8 +300,8 @@ public class EjecutorController {
         for (String texto : array) {
             if (util.comparadorDeCaracteres2(texto, "w_flagPantalla")) {
                 String actExp = texto.split(":")[1];
-                System.out.println("Guia de  " + actExp);
-                Logger.getLogger(actExp);
+                System.out.println(trazaGuia + actExp);
+                log.warn(trazaGuia + actExp);
             }
         }
 
@@ -303,6 +313,7 @@ public class EjecutorController {
         String scrits = "";
         int indice = 0;
         try {
+            bucle1:
             for (PantallaDto pantallaDto : listaActual) {
                 PantallaDto panti = new PantallaDto();
                 scrits = pantallaDto.getScrips();
@@ -332,6 +343,7 @@ public class EjecutorController {
                     clave = clave.split(":")[1];
                     clave = clave.replace("*", "");
                     screen = connect(host, usuario, clave);
+                    log.warn( printScreen1(screen));
                     //System.out.println(getScreenAsString(screen));
                     if (sessions.isConnected()) {
                         String idCiclo = dataForm[2].split(":")[1];
@@ -353,7 +365,9 @@ public class EjecutorController {
                                             passField.setString(clave);
                                             screen.sendKeys("[enter]");
                                             Thread.sleep(3000L);
-                                            String pantalla = getScreenAsString(screen).trim();
+                                            String pantallas = getScreenAsString(screen).trim();
+                                            
+                                            log.warn(printScreen1(screen));
 //                                            System.out.println(pantalla);
                                             if (expresionId > 0) {
                                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
@@ -365,11 +379,11 @@ public class EjecutorController {
                                                 } else {
                                                     Boolean a = true;
                                                     PantallaDto pant = new PantallaDto();
-                                                    if (actExp == "i") {
+                                                    if (actExp.equals("i")) {
                                                         pant.setTextoPantalla(printScreen(screen));
                                                         //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
-                                                    } else if (actExp == "e") {
+                                                    } else if (actExp.equals("e")) {
                                                         pant.setTextoPantalla(printScreen(screen));
 //                                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
@@ -400,7 +414,8 @@ public class EjecutorController {
                                         screen.sendKeys("[enter]");
                                         Thread.sleep(3000L);
                                         int longitud = listaActual.size();
-                                        String pantalla = getScreenAsString(screen).trim();
+                                        
+                                        log.warn(printScreen1(screen));
 //                                        System.out.println(pantalla);
                                         if (expresionId > 0) {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
@@ -411,16 +426,18 @@ public class EjecutorController {
                                                 Thread.sleep(2000L);
                                             } else {
                                                 PantallaDto pant = new PantallaDto();
-                                                if (actExp == "i") {
+                                                if (actExp.equals("i")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     flag2 = false;
                                                     //texto = "Codigo:0020,\n" + printScreen1(screen);
                                                     texto = "Codigo:0020,\n" + expReq.getDescripcion();
-                                                } else if (actExp == "e") {
+                                                     throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                } else if (actExp.equals("e")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     flag2 = false;
                                                     //texto = "Codigo:0010,\n" + printScreen1(screen);
                                                     texto = "Codigo:0010,\n" + expReq.getDescripcion();
+                                                    throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
                                                 }
                                             }
                                         } else {
@@ -441,7 +458,8 @@ public class EjecutorController {
                             passField.setString(clave);
                             screen.sendKeys("[enter]");
                             Thread.sleep(3000L);
-                            String pantalla = getScreenAsString(screen).trim();
+                            
+                            log.warn(printScreen1(screen));
                             // System.out.println(pantalla);
                             if (expresionId > 0) {
                                 Export expReq = ExpresionesAS4(pantalla, expresionId);
@@ -452,16 +470,16 @@ public class EjecutorController {
                                 } else {
                                     Boolean a = true;
                                     PantallaDto pant = new PantallaDto();
-                                    if (actExp == "i") {
+                                    if (actExp.equals("i")) {
                                         pant.setTextoPantalla(printScreen(screen));
                                         // throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                         throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
-                                    } else if (actExp == "e") {
+                                    } else if (actExp.equals("e")) {
 
                                         pant.setTextoPantalla(printScreen(screen));
                                         //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
-                                    } else if (actExp == "r") {
+                                    } else if (actExp.equals("r")) {
                                         userField.setString(usuario);
                                         passField.setString(clave);
                                         screen.sendKeys("[enter]");
@@ -502,11 +520,11 @@ public class EjecutorController {
                                                     // manejar el accion programada para la expresion Mostrar pantalla o teclear [Enter] u otra tecla.
                                                     Boolean a = true;
                                                     PantallaDto pant = new PantallaDto();
-                                                    if (actExp == "i") {
+                                                    if (actExp.equals("i")) {
                                                         pant.setTextoPantalla(printScreen(screen));
                                                         //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
-                                                    } else if (actExp == "e") {
+                                                    } else if (actExp.equals("e")) {
                                                         pant.setTextoPantalla(printScreen(screen));
 //                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
@@ -539,11 +557,11 @@ public class EjecutorController {
                                             } else {
                                                 Boolean a = true;
                                                 PantallaDto pant = new PantallaDto();
-                                                if (actExp == "i") {
+                                                if (actExp.equals("i")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                     throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
-                                                } else if (actExp == "e") {
+                                                } else if (actExp.equals("e")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                                     throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
@@ -570,15 +588,15 @@ public class EjecutorController {
                                 } else {
                                     Boolean a = true;
                                     PantallaDto pant = new PantallaDto();
-                                    if (actExp == "i") {
+                                    if (actExp.equals("i")) {
                                         pant.setTextoPantalla(printScreen(screen));
                                         //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                         throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
-                                    } else if (actExp == "e") {
+                                    } else if (actExp.equals("e")) {
                                         pant.setTextoPantalla(printScreen(screen));
                                         //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
-                                    } else if (actExp == "r") {
+                                    } else if (actExp.equals("r")) {
                                         operaciones(dataForm);
                                         pant.setTextoPantalla(printScreen(screen));
                                     }
@@ -611,7 +629,7 @@ public class EjecutorController {
         } catch (InterruptedException ex) {
             System.err.print(ex.getMessage());
             sessions.disconnect();
-            Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
 
         }
 
@@ -883,14 +901,16 @@ public class EjecutorController {
             }
 
             Thread.sleep(3000L);
+            String pantalla = printScreen1(screen);
+            log.warn( pantalla);
 //            System.out.println(getScreenAsString(screen));
 //            exploreScreenFields(screen);
 //            exploreScreenFieldsInputs
 
         } catch (InterruptedException ex) {
-            Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+  //          Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+//
     }
 
 }

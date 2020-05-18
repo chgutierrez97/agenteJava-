@@ -1,0 +1,701 @@
+                                                                              
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ 
+2020-05-18 15:40:35,109 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 15:40:35,109 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Traza Guiapatalla de login 
+2020-05-18 15:40:41,124 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  MAIN                       Menú principal de IBM i                             
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Tareas de usuario                                                      
+      2. Tareas de oficina                                                      
+      3. Tareas generales del sistema                                           
+      4. Archivos, bibliotecas y carpetas                                       
+      5. Programación                                                           
+      6. Comunicaciones                                                         
+      7. Definir o cambiar el sistema                                           
+      8. Manejo de problemas                                                    
+      9. Visualizar un menú                                                     
+                                                                                
+     11. Tareas de IBM i Access                                                 
+                                                                                
+     90. Finalizar la sesión                                                    
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud   F9=Recuperar   F12=Cancelar                          
+ F23=Establecer menú inicial                                                    
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:40:44,048 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Traza Guiatexto guia pantalla 2 menu principal s & (    [ ] {  }dsfds 
+2020-05-18 15:40:50,071 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  CMN                             Comunicaciones                                 
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Estado de comunicaciones                                               
+      2. Mensajes                                                               
+      3. Acceder a un sistema remoto                                            
+      4. Configurar comunicaciones y hardware remoto                            
+      5. Gestión de red                                                         
+      6. Configuración de red                                                   
+      7. Verificar comunicaciones                                               
+      8. Enviar o recibir archivos                                              
+      9. Trabajos                                                               
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:40:50,087 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Traza Guiapantalla 3 Comunicaciones 
+2020-05-18 15:40:56,105 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  NETCFG                       Configuración de Red                              
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Trabajar con entradas de directorio                                    
+      2. Configurar servicios de distribución                                   
+      3. Trabajar con entradas de trabajo de red                                
+                                                                                
+      5. Trabajar con bibliotecas de documentos remotas                         
+                                                                                
+      7. Administración de Servidor de Red                                      
+                                                                                
+     10. Configurar comunicaciones y hardware remoto                            
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:46:54,809 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 15:46:54,809 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapatalla de login 
+2020-05-18 15:47:00,834 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  MAIN                       Menú principal de IBM i                             
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Tareas de usuario                                                      
+      2. Tareas de oficina                                                      
+      3. Tareas generales del sistema                                           
+      4. Archivos, bibliotecas y carpetas                                       
+      5. Programación                                                           
+      6. Comunicaciones                                                         
+      7. Definir o cambiar el sistema                                           
+      8. Manejo de problemas                                                    
+      9. Visualizar un menú                                                     
+                                                                                
+     11. Tareas de IBM i Access                                                 
+                                                                                
+     90. Finalizar la sesión                                                    
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud   F9=Recuperar   F12=Cancelar                          
+ F23=Establecer menú inicial                                                    
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:47:02,945 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiatexto guia pantalla 2 menu principal s & (    [ ] {  }dsfds 
+2020-05-18 15:47:08,956 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  CMN                             Comunicaciones                                 
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Estado de comunicaciones                                               
+      2. Mensajes                                                               
+      3. Acceder a un sistema remoto                                            
+      4. Configurar comunicaciones y hardware remoto                            
+      5. Gestión de red                                                         
+      6. Configuración de red                                                   
+      7. Verificar comunicaciones                                               
+      8. Enviar o recibir archivos                                              
+      9. Trabajos                                                               
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:47:08,971 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapantalla 3 Comunicaciones 
+2020-05-18 15:47:15,000 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  NETCFG                       Configuración de Red                              
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Trabajar con entradas de directorio                                    
+      2. Configurar servicios de distribución                                   
+      3. Trabajar con entradas de trabajo de red                                
+                                                                                
+      5. Trabajar con bibliotecas de documentos remotas                         
+                                                                                
+      7. Administración de Servidor de Red                                      
+                                                                                
+     10. Configurar comunicaciones y hardware remoto                            
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:48:21,926 INFO o.s.b.StartupInfoLogger [main] ${sys:idRequest} Starting AgenteSpringBootConsoleApplication on LAPTOP-REM2B3A5 with PID 1968 (started by Accusys Technology in C:\Users\Accusys Technology\Desktop\alternativa\agets\agente) 
+2020-05-18 15:48:21,926 DEBUG o.s.b.StartupInfoLogger [main] ${sys:idRequest} Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE 
+2020-05-18 15:48:21,926 INFO o.s.b.SpringApplication [main] ${sys:idRequest} No active profile set, falling back to default profiles: default 
+2020-05-18 15:48:24,461 INFO o.s.b.StartupInfoLogger [main] ${sys:idRequest} Started AgenteSpringBootConsoleApplication in 2.751 seconds (JVM running for 3.399) 
+2020-05-18 15:48:27,750 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ 
+2020-05-18 15:48:27,750 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapatalla de login 
+2020-05-18 15:48:33,777 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  MAIN                       Menú principal de IBM i                             
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Tareas de usuario                                                      
+      2. Tareas de oficina                                                      
+      3. Tareas generales del sistema                                           
+      4. Archivos, bibliotecas y carpetas                                       
+      5. Programación                                                           
+      6. Comunicaciones                                                         
+      7. Definir o cambiar el sistema                                           
+      8. Manejo de problemas                                                    
+      9. Visualizar un menú                                                     
+                                                                                
+     11. Tareas de IBM i Access                                                 
+                                                                                
+     90. Finalizar la sesión                                                    
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud   F9=Recuperar   F12=Cancelar                          
+ F23=Establecer menú inicial                                                    
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:48:35,886 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiatexto guia pantalla 2 menu principal s & (    [ ] {  }dsfds 
+2020-05-18 15:48:41,920 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  CMN                             Comunicaciones                                 
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Estado de comunicaciones                                               
+      2. Mensajes                                                               
+      3. Acceder a un sistema remoto                                            
+      4. Configurar comunicaciones y hardware remoto                            
+      5. Gestión de red                                                         
+      6. Configuración de red                                                   
+      7. Verificar comunicaciones                                               
+      8. Enviar o recibir archivos                                              
+      9. Trabajos                                                               
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:48:41,942 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapantalla 3 Comunicaciones 
+2020-05-18 15:48:47,968 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  NETCFG                       Configuración de Red                              
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Trabajar con entradas de directorio                                    
+      2. Configurar servicios de distribución                                   
+      3. Trabajar con entradas de trabajo de red                                
+                                                                                
+      5. Trabajar con bibliotecas de documentos remotas                         
+                                                                                
+      7. Administración de Servidor de Red                                      
+                                                                                
+     10. Configurar comunicaciones y hardware remoto                            
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:49:20,886 INFO o.s.b.StartupInfoLogger [main] ${sys:idRequest} Starting AgenteSpringBootConsoleApplication on LAPTOP-REM2B3A5 with PID 12924 (started by Accusys Technology in C:\Users\Accusys Technology\Desktop\alternativa\agets\agente) 
+2020-05-18 15:49:20,886 DEBUG o.s.b.StartupInfoLogger [main] ${sys:idRequest} Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE 
+2020-05-18 15:49:20,886 INFO o.s.b.SpringApplication [main] ${sys:idRequest} No active profile set, falling back to default profiles: default 
+2020-05-18 15:49:23,464 INFO o.s.b.StartupInfoLogger [main] ${sys:idRequest} Started AgenteSpringBootConsoleApplication in 2.816 seconds (JVM running for 3.445) 
+2020-05-18 15:49:26,709 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 15:49:26,709 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapatalla de login 
+2020-05-18 15:49:32,727 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  MAIN                       Menú principal de IBM i                             
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Tareas de usuario                                                      
+      2. Tareas de oficina                                                      
+      3. Tareas generales del sistema                                           
+      4. Archivos, bibliotecas y carpetas                                       
+      5. Programación                                                           
+      6. Comunicaciones                                                         
+      7. Definir o cambiar el sistema                                           
+      8. Manejo de problemas                                                    
+      9. Visualizar un menú                                                     
+                                                                                
+     11. Tareas de IBM i Access                                                 
+                                                                                
+     90. Finalizar la sesión                                                    
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud   F9=Recuperar   F12=Cancelar                          
+ F23=Establecer menú inicial                                                    
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:49:34,839 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiatexto guia pantalla 2 menu principal s & (    [ ] {  }dsfds 
+2020-05-18 15:49:40,873 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  CMN                             Comunicaciones                                 
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Estado de comunicaciones                                               
+      2. Mensajes                                                               
+      3. Acceder a un sistema remoto                                            
+      4. Configurar comunicaciones y hardware remoto                            
+      5. Gestión de red                                                         
+      6. Configuración de red                                                   
+      7. Verificar comunicaciones                                               
+      8. Enviar o recibir archivos                                              
+      9. Trabajos                                                               
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 15:49:40,889 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} TrazaGuiapantalla 3 Comunicaciones 
+2020-05-18 15:49:46,907 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  NETCFG                       Configuración de Red                              
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Trabajar con entradas de directorio                                    
+      2. Configurar servicios de distribución                                   
+      3. Trabajar con entradas de trabajo de red                                
+                                                                                
+      5. Trabajar con bibliotecas de documentos remotas                         
+                                                                                
+      7. Administración de Servidor de Red                                      
+                                                                                
+     10. Configurar comunicaciones y hardware remoto                            
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 16:09:57,675 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ 
+2020-05-18 16:09:57,675 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiapatalla de login 
+2020-05-18 16:11:49,316 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 16:11:49,316 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiapatalla de login 
+2020-05-18 16:11:55,332 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  MAIN                       Menú principal de IBM i                             
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Tareas de usuario                                                      
+      2. Tareas de oficina                                                      
+      3. Tareas generales del sistema                                           
+      4. Archivos, bibliotecas y carpetas                                       
+      5. Programación                                                           
+      6. Comunicaciones                                                         
+      7. Definir o cambiar el sistema                                           
+      8. Manejo de problemas                                                    
+      9. Visualizar un menú                                                     
+                                                                                
+     11. Tareas de IBM i Access                                                 
+                                                                                
+     90. Finalizar la sesión                                                    
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud   F9=Recuperar   F12=Cancelar                          
+ F23=Establecer menú inicial                                                    
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 16:11:57,444 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiatexto guia pantalla 2 menu principal s & (    [ ] {  }dsfds 
+2020-05-18 16:12:03,479 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  CMN                             Comunicaciones                                 
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Estado de comunicaciones                                               
+      2. Mensajes                                                               
+      3. Acceder a un sistema remoto                                            
+      4. Configurar comunicaciones y hardware remoto                            
+      5. Gestión de red                                                         
+      6. Configuración de red                                                   
+      7. Verificar comunicaciones                                               
+      8. Enviar o recibir archivos                                              
+      9. Trabajos                                                               
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 16:12:03,494 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiapantalla 3 Comunicaciones 
+2020-05-18 16:12:09,513 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}  NETCFG                       Configuración de Red                              
+                                                            Sistema:   E2053B6W 
+ Seleccione una de las opciones siguientes:                                     
+                                                                                
+      1. Trabajar con entradas de directorio                                    
+      2. Configurar servicios de distribución                                   
+      3. Trabajar con entradas de trabajo de red                                
+                                                                                
+      5. Trabajar con bibliotecas de documentos remotas                         
+                                                                                
+      7. Administración de Servidor de Red                                      
+                                                                                
+     10. Configurar comunicaciones y hardware remoto                            
+                                                                                
+     70. Mandatos relacionados                                                  
+                                                                                
+                                                                                
+                                                                                
+ Selección o mandato                                                            
+ ===>                                                                           
+                                                                                
+ F3=Salir   F4=Solicitud     F9=Recuperar   F12=Cancelar                        
+ F13=Information Assistant   F16=Menú principal del sistema                     
+ (C) COPYRIGHT IBM CORP. 1980, 2013.                                            
+ 
+2020-05-18 16:16:30,061 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ 
+2020-05-18 16:17:08,992 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 16:17:08,998 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiapatalla de login 
+2020-05-18 16:17:15,024 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                          Visualizar Mensajes de Programa                        
+                                                                                
+ Trabajo 000745/CABOT/QPADEV0001 arrancado el 18/05/20 a las 14:16:18 en el s   
+ La cola de mensajes CABOT está asignada a otro trabajo.                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Pulse Intro para continuar.                                                    
+                                                                                
+                                                                                
+                                                                                
+ F3=Salir  F12=Cancelar                                                         
+                                                                                
+ 
+2020-05-18 16:17:47,846 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                                Inicio de Sesión                                 
+                                               Sistema . . . . . :   E2053B6W   
+                                               Subsistema  . . . :   QBASE      
+                                               Pantalla  . . . . :   QPADEV0001 
+                                                                                
+                Usuario . . . . . . . . . . . . .                               
+                Contrase¦a  . . . . . . . . . . .                               
+                Programa/procedimiento  . . . . .                               
+                Menú  . . . . . . . . . . . . . .                               
+                Biblioteca actual . . . . . . . .                               
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                        (C) COPYRIGHT IBM CORP. 1980, 2013.     
+ 
+2020-05-18 16:17:47,846 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest} Guiapatalla de login 
+2020-05-18 16:17:53,847 WARN c.a.a.c.EjecutorController [main] ${sys:idRequest}                          Visualizar Mensajes de Programa                        
+                                                                                
+ Trabajo 000746/CABOT/QPADEV0001 arrancado el 18/05/20 a las 14:16:57 en el s   
+ La cola de mensajes CABOT está asignada a otro trabajo.                        
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+ Pulse Intro para continuar.                                                    
+                                                                                
+                                                                                
+                                                                                
+ F3=Salir  F12=Cancelar                                                         
+                                                                                
+ 

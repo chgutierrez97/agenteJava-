@@ -8,18 +8,18 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static java.lang.System.exit;
+import org.apache.logging.log4j.LogManager;
 
 @SpringBootApplication
 
 public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
-
+private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
     @Autowired
     EjecutorController ejecutor;
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(AgenteSpringBootConsoleApplication.class);
         app.setBannerMode(Banner.Mode.OFF);
-
         app.run(args);
     }
 
