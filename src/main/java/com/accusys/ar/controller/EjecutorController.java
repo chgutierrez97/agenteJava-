@@ -11,6 +11,8 @@ import com.google.gson.Gson;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.util.NumberUtils;
 import org.springframework.web.context.annotation.SessionScope;
 import org.tn5250j.Session5250;
 import org.tn5250j.beans.ProtocolBean;
@@ -32,7 +35,6 @@ import org.tn5250j.framework.tn5250.ScreenPlanes;
 
 @Service
 @PropertySource("classpath:application.properties")
-@SessionScope
 public class EjecutorController {
 
     public Screen5250 screen;
@@ -117,26 +119,49 @@ public class EjecutorController {
         return sb;
     }
 
+    private String printScreenLinea(Screen5250 screen, String Expresion) {
+        String showme = getScreenAsString(screen);
+        String sb = "";
+        String sc = "";
+        for (int i = 0; i < showme.length(); i += 80) {
+            sc = showme.substring(i, i + 80);
+            if (util.comparadorDeCaracteres(sc, Expresion)) {
+                sb += sc;
+            }
+            //sb += showme.substring(i, i + 80);
+            sb += "\n";
+        }
+        //System.out.println(sb);
+        return sb;
+    }
+
+    public boolean isOnlyNumber(String value) {
+        boolean ret = false;
+        ret = value.matches("^[0-9]+$");
+        return ret;
+    }
+
     private String findParam(String indice) {
         Export exp = new Export();
         exp.setFlag(false);
-        String aux = "", aux2 = "", valor = "", valor2 = "";
-
+        String aux = "", aux2 = "", valor = "", valor2 = "", valorNum = "";
         if (util.comparadorDeCaracteres2(indice, "*")) {
             valor2 = indice.split(":")[0];
             valor = indice;
-            aux2 = pantalla2 + "-F" + (Integer.valueOf(valor2.split("_")[1]));
-            for (String parametro : parametros) {
-                if (util.comparadorDeCaracteres(parametro.split(":")[0], aux2)) {
-                    exp.setFlag(true);
-                    aux = parametro.split("-")[1].split(":")[1];
-                    if (aux.length() > 0) {
-                        exp.setDescripcion(aux);
-                        valor = valor2 + ":" + aux;
-
-                    } else {
-                        valor = indice;
-                        exp.setFlag(false);
+            valorNum = valor2.split("_")[1];
+            if (isOnlyNumber(valorNum)) {
+                aux2 = pantalla2 + "-F" + (Integer.valueOf(valor2.split("_")[1]));
+                for (String parametro : parametros) {
+                    if (util.comparadorDeCaracteres(parametro.split(":")[0], aux2)) {
+                        exp.setFlag(true);
+                        aux = parametro.split("-")[1].split(":")[1];
+                        if (aux.length() > 0) {
+                            exp.setDescripcion(aux);
+                            valor = valor2 + ":" + aux;
+                        } else {
+                            valor = indice;
+                            exp.setFlag(false);
+                        }
                     }
                 }
             }
@@ -144,7 +169,6 @@ public class EjecutorController {
             valor = indice;
             exp.setFlag(false);
         }
-
         return valor;
     }
 
@@ -192,14 +216,16 @@ public class EjecutorController {
         if (idExpresion > 0) {
             ExpresionesRegularesIO ExpresionAs = util.getExpresionById(idExpresion);
             if (util.comparadorDeCaracteres(textoDePantalla, ExpresionAs.getCodError())) {
-                flag.setDescripcion(ExpresionAs.getMensajeError());
+                flag.setDescripcion(printScreenLinea(screen, ExpresionAs.getCodError()));
+                //flag.setDescripcion(ExpresionAs.getMensajeError());
                 process = false;
             }
         } else {
             List<ExpresionesRegularesIO> expresionesAS = util.getExpresionAll();
             for (ExpresionesRegularesIO expresionRegular : expresionesAS) {
                 if (util.comparadorDeCaracteres(textoDePantalla, expresionRegular.getCodError())) {
-                    flag.setDescripcion(expresionRegular.getMensajeError());
+                    //flag.setDescripcion(expresionRegular.getMensajeError());
+                    flag.setDescripcion(printScreenLinea(screen, expresionRegular.getCodError()));
                     process = false;
                 }
             }
@@ -243,7 +269,7 @@ public class EjecutorController {
                     } else {
                         if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
                             pant.setTextoPantalla(printScreen(screen));
-                            throw new ExcepcionBaseMsn("Codigo:0010,\n"+printScreen1(screen));
+                            throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                         } else {
                             pant.setTextoPantalla(printScreen(screen));
                             throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
@@ -255,23 +281,23 @@ public class EjecutorController {
             //System.out.println(printScreen1(screen));
             flag = true;
             throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
-            
+
         }
         return flag;
     }
 
-    public void localizadorPantalla(String[] array){  
+    public void localizadorPantalla(String[] array) {
         for (String texto : array) {
-            if(util.comparadorDeCaracteres2(texto, "w_flagPantalla")){
-               String  actExp = texto.split(":")[1];
-                System.out.println("Guia de  "+actExp);
+            if (util.comparadorDeCaracteres2(texto, "w_flagPantalla")) {
+                String actExp = texto.split(":")[1];
+                System.out.println("Guia de  " + actExp);
                 Logger.getLogger(actExp);
-            }     
+            }
         }
-    
+
     }
-    
-    public void simuladorAs(List<PantallaDto> listaActual) {
+
+    public void simuladorAs(List<PantallaDto> listaActual) throws UnsupportedEncodingException {
         //listPatallaSiluladora.clear();
         String[] dataForm = new String[70];
         String scrits = "";
@@ -280,15 +306,18 @@ public class EjecutorController {
             for (PantallaDto pantallaDto : listaActual) {
                 PantallaDto panti = new PantallaDto();
                 scrits = pantallaDto.getScrips();
-                dataForm = pantallaDto.getScrips().split(",");
+                scrits = URLDecoder.decode(scrits, "UTF-8");
+                String pantallaScrip = pantallaDto.getScrips();
+                pantallaScrip = URLDecoder.decode(pantallaScrip, "UTF-8");
+                dataForm = pantallaScrip.split(",");
                 pantallaDto.setId(null);
                 pantalla2 = "P" + dataForm[1].split(":")[1];
                 String actExp = dataForm[5];
                 actExp = actExp.split(":")[1];
                 actExp = actExp.replace("*", "");
-                
+
                 if (scrits.contains("conec")) {
-                    
+
                     boolean flag2 = true;
                     String host = dataForm[7];
                     host = findParam(host);
@@ -308,7 +337,7 @@ public class EjecutorController {
                         String idCiclo = dataForm[2].split(":")[1];
                         Integer numInt = Integer.valueOf(dataForm[3].split(":")[1]);
                         Integer expresionId = Integer.valueOf(dataForm[4].split(":")[1]);
-                        
+
                         localizadorPantalla(dataForm);
                         if (!idCiclo.equals("0")) {
                             switch (idCiclo) {
@@ -338,7 +367,12 @@ public class EjecutorController {
                                                     PantallaDto pant = new PantallaDto();
                                                     if (actExp == "i") {
                                                         pant.setTextoPantalla(printScreen(screen));
-                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n"+printScreen1(screen));
+                                                        //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                    } else if (actExp == "e") {
+                                                        pant.setTextoPantalla(printScreen(screen));
+//                                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                                     }
                                                 }
                                             } else {
@@ -356,7 +390,7 @@ public class EjecutorController {
                                 case "w":
                                     // segmento de ciclo While de la conexion;   
                                     do {
-                                        String texto="";
+                                        String texto = "";
                                         ScreenFields sf = screen.getScreenFields();
                                         Thread.sleep(3000L);
                                         ScreenField userField = sf.getField(0);
@@ -372,7 +406,7 @@ public class EjecutorController {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
                                                 if (procesado(listaActual, indice)) {
-                                                    flag2 = false;   
+                                                    flag2 = false;
                                                 }
                                                 Thread.sleep(2000L);
                                             } else {
@@ -380,12 +414,18 @@ public class EjecutorController {
                                                 if (actExp == "i") {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     flag2 = false;
-                                                    texto="Codigo:0010,\n"+printScreen1(screen);
+                                                    //texto = "Codigo:0020,\n" + printScreen1(screen);
+                                                    texto = "Codigo:0020,\n" + expReq.getDescripcion();
+                                                } else if (actExp == "e") {
+                                                    pant.setTextoPantalla(printScreen(screen));
+                                                    flag2 = false;
+                                                    //texto = "Codigo:0010,\n" + printScreen1(screen);
+                                                    texto = "Codigo:0010,\n" + expReq.getDescripcion();
                                                 }
                                             }
                                         } else {
                                             if (procesado(listaActual, indice)) {
-                                                flag2 = false;    
+                                                flag2 = false;
                                             }
                                             Thread.sleep(2000L);
                                         }
@@ -403,29 +443,35 @@ public class EjecutorController {
                             Thread.sleep(3000L);
                             String pantalla = getScreenAsString(screen).trim();
                             // System.out.println(pantalla);
-                                if (expresionId > 0) {
-                                    Export expReq = ExpresionesAS4(pantalla, expresionId);
-                                    if (expReq.getFlag()) {
-                                        int longitud = listaActual.size();
-                                        procesado(listaActual, indice);
-                                        Thread.sleep(2000L);
-                                    } else {
-                                        Boolean a = true;
-                                        PantallaDto pant = new PantallaDto();
-                                        if (actExp == "i") {
-                                            pant.setTextoPantalla(printScreen(screen));
-                                            throw new ExcepcionBaseMsn("Codigo:0020,\n"+printScreen1(screen));
-                                        } else if (actExp == "r") {
-                                            userField.setString(usuario);
-                                            passField.setString(clave);
-                                            screen.sendKeys("[enter]");
-                                            pant.setTextoPantalla(printScreen(screen));
-                                        }
-                                    }
-                                } else {
+                            if (expresionId > 0) {
+                                Export expReq = ExpresionesAS4(pantalla, expresionId);
+                                if (expReq.getFlag()) {
+                                    int longitud = listaActual.size();
                                     procesado(listaActual, indice);
                                     Thread.sleep(2000L);
+                                } else {
+                                    Boolean a = true;
+                                    PantallaDto pant = new PantallaDto();
+                                    if (actExp == "i") {
+                                        pant.setTextoPantalla(printScreen(screen));
+                                        // throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                    } else if (actExp == "e") {
+
+                                        pant.setTextoPantalla(printScreen(screen));
+                                        //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
+                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
+                                    } else if (actExp == "r") {
+                                        userField.setString(usuario);
+                                        passField.setString(clave);
+                                        screen.sendKeys("[enter]");
+                                        pant.setTextoPantalla(printScreen(screen));
+                                    }
                                 }
+                            } else {
+                                procesado(listaActual, indice);
+                                Thread.sleep(2000L);
+                            }
                         }
                     } else {
                         throw new ExcepcionBaseMsn("Codigo:0002, Error Rota Conexion remota con el servidor AS400");
@@ -458,7 +504,12 @@ public class EjecutorController {
                                                     PantallaDto pant = new PantallaDto();
                                                     if (actExp == "i") {
                                                         pant.setTextoPantalla(printScreen(screen));
-                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n"+printScreen1(screen));
+                                                        //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                    } else if (actExp == "e") {
+                                                        pant.setTextoPantalla(printScreen(screen));
+//                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
+                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                                     }
                                                 }
                                             } else {
@@ -490,7 +541,12 @@ public class EjecutorController {
                                                 PantallaDto pant = new PantallaDto();
                                                 if (actExp == "i") {
                                                     pant.setTextoPantalla(printScreen(screen));
-                                                    throw new ExcepcionBaseMsn("Codigo:0010,\n"+printScreen1(screen));
+                                                    //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                                    throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                } else if (actExp == "e") {
+                                                    pant.setTextoPantalla(printScreen(screen));
+                                                    //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
+                                                    throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                                 }
                                             }
                                         } else {
@@ -516,7 +572,12 @@ public class EjecutorController {
                                     PantallaDto pant = new PantallaDto();
                                     if (actExp == "i") {
                                         pant.setTextoPantalla(printScreen(screen));
-                                        throw new ExcepcionBaseMsn("Codigo:0010,\n"+printScreen1(screen));
+                                        //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
+                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                    } else if (actExp == "e") {
+                                        pant.setTextoPantalla(printScreen(screen));
+                                        //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
+                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                     } else if (actExp == "r") {
                                         operaciones(dataForm);
                                         pant.setTextoPantalla(printScreen(screen));
@@ -539,22 +600,21 @@ public class EjecutorController {
             pant.setTextoPantalla(printScreen(screen));
             sessions.disconnect();
         } catch (ExcepcionBaseMsn ex) {
-            String procesado=ex.getMessage();           
+            String procesado = ex.getMessage();
             sessions.disconnect();
             if (util.comparadorDeCaracteres(procesado, "0020")) {
-                 System.out.println(procesado);
-            }else{
-                 System.err.println(procesado);
+                System.out.println(procesado);
+            } else {
+                System.err.println(procesado);
             }
-            
-            
+
         } catch (InterruptedException ex) {
             System.err.print(ex.getMessage());
             sessions.disconnect();
             Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
-           
+
         }
-        
+
     }
 
     public void operaciones(String[] dataForm) {
