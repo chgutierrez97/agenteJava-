@@ -25,7 +25,7 @@ private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
 
     @Override
     public void run(String... args) throws Exception {
-        String[] nombres = {"transaccion-ejemplo1-1589511212428.json"};//,"P1-F2:ACCUSYS"
+        String[] nombres = {"transaccion-ejemplo2-1590605507296.json"};//,"P1-F2:ACCUSYS"
         args = nombres;
         if (args.length > 0) {
             ejecutor.importarTransaccion(args);

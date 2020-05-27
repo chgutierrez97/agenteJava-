@@ -32,13 +32,12 @@ import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenField;
 import org.tn5250j.framework.tn5250.ScreenFields;
 import org.tn5250j.framework.tn5250.ScreenPlanes;
-    
 
 @Service
 @PropertySource("classpath:application.properties")
 public class EjecutorController {
+
     private static final Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
-   
 
     public Screen5250 screen;
     public boolean conectado;
@@ -49,11 +48,12 @@ public class EjecutorController {
 
     @Value("${ruta.archivo}")
     public String rutaArchivo;
-    
+
     @Value("${trazaGuia}")
     public String trazaGuia;
-    
-    
+
+    @Value("${num.inten.close}")
+    public int numIntClose;
 
     public String nombreArchivo = "";
     @Autowired
@@ -74,7 +74,7 @@ public class EjecutorController {
                 JSONObject jsonObject = (JSONObject) obj;
                 jsonString = jsonObject.toString();
                 export = gson.fromJson(jsonString, TransaccionExport.class);
-                simuladorAs(export.getListaPantalla());
+                simuladorAs(export);
 
             } catch (FileNotFoundException e) {
                 System.err.println("codError:1002," + e.getMessage());
@@ -87,7 +87,7 @@ public class EjecutorController {
                 //manejo de error
             }
         } else {
-              log.warn("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
+            log.warn("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
             System.out.println("ruta del Archivo ---->" + rutaArchivo + nombreArchivo);
             log.warn("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
             System.err.println("codError:1001, Favor ingrezar nombre del archivo json por los parametros");
@@ -192,16 +192,43 @@ public class EjecutorController {
         }
         //System.out.println(sb);
     }
-
-    private Screen5250 connect(String servidor, String usuario, String clave) {
+    
+    
+    private Screen5250 connect(String servidor, String usuario, String clave, String devName) {
         ProtocolBean pb = new ProtocolBean(usuario, clave);
         Screen5250 screen = null;
         try {
             pb.setHostName(servidor);
-
+            if (!devName.equals("")) {
+                pb.setDeviceName(devName);
+            }
             sessions = pb.getSession();
             pb.connect();
+            screen = sessions.getScreen();
+            Thread.sleep(3000L);
+            conectado = sessions.isConnected();
+            System.err.println("Is connected? - " + sessions.isConnected());
+            printScreen(screen);
+            return screen;
+        } catch (UnknownHostException ex) {
+            return screen;
+        } catch (IllegalStateException ex) {
+            return screen;
+        } catch (InterruptedException ex) {
+            return screen;
+        }
+        //To change body of generated methods, choose Tools | Templates.
+    }
 
+    private Screen5250 connect2(String servidor, String usuario, String clave) {
+        ProtocolBean pb = new ProtocolBean(usuario, clave);
+        Screen5250 screen = null;
+        try {
+            pb.setHostName(servidor);
+            
+            
+            sessions = pb.getSession();
+            pb.connect();
             screen = sessions.getScreen();
             Thread.sleep(3000L);
             conectado = sessions.isConnected();
@@ -209,15 +236,12 @@ public class EjecutorController {
             //printScreen(screen);
             return screen;
         } catch (UnknownHostException ex) {
-          // Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
         } catch (IllegalStateException ex) {
-           // Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
         } catch (InterruptedException ex) {
-            //Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
             return screen;
-        } //To change body of generated methods, choose Tools | Templates.
+        }
     }
 
     public Export ExpresionesAS4(String textoDePantalla, Integer idExpresion) {
@@ -229,15 +253,6 @@ public class EjecutorController {
                 flag.setDescripcion(printScreenLinea(screen, ExpresionAs.getCodError()));
                 //flag.setDescripcion(ExpresionAs.getMensajeError());
                 process = false;
-            }
-        } else {
-            List<ExpresionesRegularesIO> expresionesAS = util.getExpresionAll();
-            for (ExpresionesRegularesIO expresionRegular : expresionesAS) {
-                if (util.comparadorDeCaracteres(textoDePantalla, expresionRegular.getCodError())) {
-                    //flag.setDescripcion(expresionRegular.getMensajeError());
-                    flag.setDescripcion(printScreenLinea(screen, expresionRegular.getCodError()));
-                    process = false;
-                }
             }
         }
         flag.setFlag(process);
@@ -307,7 +322,43 @@ public class EjecutorController {
 
     }
 
-    public void simuladorAs(List<PantallaDto> listaActual) throws UnsupportedEncodingException {
+    public void cierreOperaciones(List<PantallaDto> listaPantallaCierre) {
+        String[] dataForm2 = new String[100];
+        Boolean flagCierre = true;
+        String script = "";
+        List<PantallaDto> listPantalla = listaPantallaCierre;
+        int index = 0;
+         int closeC = 0;
+        for (PantallaDto pantallaDto1 : listPantalla) {
+            index++;
+            dataForm2 = pantallaDto1.getScrips().split(",");
+            if (index <= (listPantalla.size() - 1)) {
+               
+                String textComparador = listPantalla.get(index).getScrips().split(",")[2].split(":")[1];
+                do {
+                    closeC++;
+                    operaciones(dataForm2);
+                    if (util.comparadorDeCaracteres(getScreenAsString(screen).trim(), textComparador)) {
+                        flagCierre = false;
+                    }
+                    if(closeC == numIntClose){
+                        flagCierre = false;
+                    }
+                    
+                    
+                } while (flagCierre);
+            } else {
+                operaciones(dataForm2);
+            }
+        }
+        if (sessions != null) {
+            sessions.disconnect();
+        }
+
+    }
+
+    public void simuladorAs(TransaccionExport export) throws UnsupportedEncodingException {
+        List<PantallaDto> listaActual = export.getListaPantalla();
         //listPatallaSiluladora.clear();
         String[] dataForm = new String[70];
         String scrits = "";
@@ -330,20 +381,41 @@ public class EjecutorController {
                 if (scrits.contains("conec")) {
 
                     boolean flag2 = true;
-                    String host = dataForm[7];
-                    host = findParam(host);
-                    host = host.split(":")[1];
-                    host = host.replace("*", "");
-                    String usuario = dataForm[8];
-                    usuario = findParam(usuario);
-                    usuario = usuario.split(":")[1];
-                    usuario = usuario.replace("*", "");
-                    String clave = dataForm[9];
-                    clave = findParam(clave);
-                    clave = clave.split(":")[1];
-                    clave = clave.replace("*", "");
-                    screen = connect(host, usuario, clave);
-                    log.warn( printScreen1(screen));
+                    String devName = "", host = "", usuario = "", clave = "";
+                    if (util.comparadorDeCaracteres(scrits, "w_deviceName")) {
+
+                        devName = dataForm[7];
+                        devName = devName.split(":")[1];
+                        devName = devName.replace("*", "");
+                        host = dataForm[8];
+                        host = findParam(host);
+                        host = host.split(":")[1];
+                        host = host.replace("*", "");
+                        usuario = dataForm[9];
+                        usuario = findParam(usuario);
+                        usuario = usuario.split(":")[1];
+                        usuario = usuario.replace("*", "");
+                        clave = dataForm[10];
+                        clave = findParam(clave);
+                        clave = clave.split(":")[1];
+                        clave = clave.replace("*", "");
+
+                    } else {
+
+                        host = dataForm[7];
+                        host = host.split(":")[1];
+                        host = host.replace("*", "");
+                        usuario = dataForm[8];
+                        usuario = usuario.split(":")[1];
+                        usuario = usuario.replace("*", "");
+                        clave = dataForm[9];
+                        clave = clave.split(":")[1];
+                        clave = clave.replace("*", "");
+
+                    }
+
+                    screen = connect(host, usuario, clave, devName);
+                    log.warn(printScreen1(screen));
                     //System.out.println(getScreenAsString(screen));
                     if (sessions.isConnected()) {
                         String idCiclo = dataForm[2].split(":")[1];
@@ -366,7 +438,7 @@ public class EjecutorController {
                                             screen.sendKeys("[enter]");
                                             Thread.sleep(3000L);
                                             String pantallas = getScreenAsString(screen).trim();
-                                            
+
                                             log.warn(printScreen1(screen));
 //                                            System.out.println(pantalla);
                                             if (expresionId > 0) {
@@ -414,7 +486,7 @@ public class EjecutorController {
                                         screen.sendKeys("[enter]");
                                         Thread.sleep(3000L);
                                         int longitud = listaActual.size();
-                                        
+
                                         log.warn(printScreen1(screen));
 //                                        System.out.println(pantalla);
                                         if (expresionId > 0) {
@@ -431,7 +503,7 @@ public class EjecutorController {
                                                     flag2 = false;
                                                     //texto = "Codigo:0020,\n" + printScreen1(screen);
                                                     texto = "Codigo:0020,\n" + expReq.getDescripcion();
-                                                     throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                    throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
                                                 } else if (actExp.equals("e")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     flag2 = false;
@@ -458,7 +530,7 @@ public class EjecutorController {
                             passField.setString(clave);
                             screen.sendKeys("[enter]");
                             Thread.sleep(3000L);
-                            
+
                             log.warn(printScreen1(screen));
                             // System.out.println(pantalla);
                             if (expresionId > 0) {
@@ -616,10 +688,12 @@ public class EjecutorController {
             }
             PantallaDto pant = new PantallaDto();
             pant.setTextoPantalla(printScreen(screen));
-            sessions.disconnect();
+            //sessions.disconnect();
+            cierreOperaciones(export.getListaPantallaCierre());
         } catch (ExcepcionBaseMsn ex) {
             String procesado = ex.getMessage();
-            sessions.disconnect();
+            //sessions.disconnect();
+            cierreOperaciones(export.getListaPantallaCierre());
             if (util.comparadorDeCaracteres(procesado, "0020")) {
                 System.out.println(procesado);
             } else {
@@ -628,9 +702,8 @@ public class EjecutorController {
 
         } catch (InterruptedException ex) {
             System.err.print(ex.getMessage());
-            sessions.disconnect();
+            cierreOperaciones(export.getListaPantallaCierre());
             //Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
-
         }
 
     }
@@ -639,7 +712,7 @@ public class EjecutorController {
         ScreenFields sf = screen.getScreenFields();
         try {
             Thread.sleep(3000L);
-            for (int i = 8; i < dataForm.length; i++) {
+            for (int i = 9; i < dataForm.length; i++) {
                 String datos = dataForm[i];
                 datos = findParam(datos);
                 String[] datoAux = datos.split(":");
@@ -902,15 +975,12 @@ public class EjecutorController {
 
             Thread.sleep(3000L);
             String pantalla = printScreen1(screen);
-            log.warn( pantalla);
-//            System.out.println(getScreenAsString(screen));
-//            exploreScreenFields(screen);
-//            exploreScreenFieldsInputs
+            log.warn(pantalla);
+
 
         } catch (InterruptedException ex) {
-  //          Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+            //          Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
         }
-//
     }
 
 }
