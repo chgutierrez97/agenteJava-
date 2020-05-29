@@ -69,7 +69,6 @@ public class EjecutorController {
             String jsonString = "";
             Gson gson = new Gson();
             try {
-
                 Object obj = parser.parse(new FileReader(rutaArchivo + nombreArchivo));
                 JSONObject jsonObject = (JSONObject) obj;
                 jsonString = jsonObject.toString();
