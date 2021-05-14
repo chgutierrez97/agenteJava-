@@ -7,12 +7,13 @@ import java.io.Serializable;
 
 
 public class ExpresionesRegularesIO implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+private static final long serialVersionUID = 1L;
     
     private Integer id;
     private String codError;
     private String mensajeError;
+    private String wAccionar;
+    
 
     public ExpresionesRegularesIO() {
     }
@@ -25,6 +26,13 @@ public class ExpresionesRegularesIO implements Serializable {
         this.id = id;
         this.codError = codError;
         this.mensajeError = mensajeError;
+    }
+
+    public ExpresionesRegularesIO(Integer id, String codError, String mensajeError, String wAccionar) {
+        this.id = id;
+        this.codError = codError;
+        this.mensajeError = mensajeError;
+        this.wAccionar = wAccionar;
     }
 
     public Integer getId() {
@@ -51,6 +59,15 @@ public class ExpresionesRegularesIO implements Serializable {
         this.mensajeError = mensajeError;
     }
 
+    public String getwAccionar() {
+        return wAccionar;
+    }
+
+    public void setwAccionar(String wAccionar) {
+        this.wAccionar = wAccionar;
+    }
+    
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -71,11 +88,14 @@ public class ExpresionesRegularesIO implements Serializable {
         return true;
     }
 
+//    @Override
+//    public String toString() {
+//        return "ExpresionesRegularesIO{" + "id=" + id + ", codError=" + codError + ", mensajeError=" + mensajeError + '}';
+//    }
+
     @Override
     public String toString() {
-        return "ExpresionesRegularesIO{" + "id=" + id + ", codError=" + codError + ", mensajeError=" + mensajeError + '}';
+        return "ExpresionesRegularesIO{" + "id=" + id + ", codError=" + codError + ", mensajeError=" + mensajeError + ", wAccionar=" + wAccionar + '}';
     }
-
-
-    
+  
 }

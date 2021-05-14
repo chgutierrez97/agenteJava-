@@ -10,7 +10,7 @@ import java.util.List;
 
 
 
-public class ListaMacroIO {
+public class ListaMacroIO1 {
     
     private List<TransaccionIO> TransaccionList;
     private List<InputIO> InputList;
@@ -112,5 +112,6 @@ public class ListaMacroIO {
 
     public void setCancelacionesList(List<CancelacionesDto> CancelacionesList) {
         this.CancelacionesList = CancelacionesList;
-    } 
+    }
+   
 }

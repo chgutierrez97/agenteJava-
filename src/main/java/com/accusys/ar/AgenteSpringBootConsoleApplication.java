@@ -9,9 +9,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static java.lang.System.exit;
 import org.apache.logging.log4j.LogManager;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 @SpringBootApplication
-
+@EnableAutoConfiguration
 public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
     @Autowired
@@ -24,7 +25,9 @@ private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
     }
 
     @Override
-    public void run(String... args) throws Exception {      
+    public void run(String... args) throws Exception {   
+          String[] nombres = {"1620659627661.json"};//,"P1-F2:ACCUSYS"
+        args = nombres;
         if (args.length > 0) {
             ejecutor.importarTransaccion(args);
         } else {

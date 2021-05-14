@@ -1,13 +1,18 @@
 package com.accusys.ar.controller;
 
 import com.accusys.ar.AgenteSpringBootConsoleApplication;
+import com.accusys.ar.modelDto.CancelacionesDto;
 import org.springframework.stereotype.Service;
 import com.accusys.ar.modelDto.Export;
 import com.accusys.ar.modelDto.ExpresionesRegularesIO;
+import com.accusys.ar.modelDto.InputDto;
 import com.accusys.ar.modelDto.PantallaDto;
 import com.accusys.ar.modelDto.TransaccionExport;
+import com.accusys.ar.service.ServicesRobot;
+
 import com.accusys.ar.util.ExcepcionBaseMsn;
 import com.accusys.ar.util.UtilRobot;
+import com.accusys.ar.util.UtilRobotEncrips;
 import com.google.gson.Gson;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -16,8 +21,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.net.UnknownHostException;
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,9 +64,33 @@ public class EjecutorController {
     @Value("${num.inten.close}")
     public int numIntClose;
 
+    @Value("${com.elemen.escape}")
+    private String scape;
+
+    @Value("${com.opcion.ini.cancelacion}")
+    private String opIniCance;
+
+    @Value("${com.opcion.msn.cancelacion}")
+    private Integer mensajeDeCance;
+
+    @Value("${com.scrips.key}")
+    private String key;
+
+    @Value("${com.scrips.iv}")
+    private String iv;
+
     public String nombreArchivo = "";
     @Autowired
     UtilRobot util;
+    
+    
+    @Autowired
+    UtilRobotEncrips utilEncrips;
+
+    @Autowired
+    ServicesRobot service;
+
+   
 
     public void importarTransaccion(String[] args) throws InterruptedException {
         this.parametros = args;
@@ -181,18 +214,32 @@ public class EjecutorController {
         return valor;
     }
 
-    private void printScreen2(Screen5250 screen) {
-        String showme = getScreenAsString(screen);
-        String sb = "";
-
-        for (int i = 0; i < showme.length(); i += 80) {
-            sb += showme.substring(i, i + 80);
-            sb += "\n";
+    private String printScreen2(Screen5250 screen) {
+        String textoAux="";
+        try {
+            String showme = getScreenAsString(screen);
+            String sb = "";
+            int j = 0;
+            for (int i = 0; i < showme.length(); i += 80) {
+                j++;
+                if (j >= mensajeDeCance) {
+                    if (!(showme.substring(i, i + 80).trim().equals(""))) {
+                        sb += showme.substring(i, i + 80).trim() ;
+                    }
+                }
+            }
+            sb = limpiarTexto(sb);
+            textoAux = utilEncrips.encrypt(key, iv, sb);
+            
+            System.out.println(utilEncrips.decrypt(key, iv, textoAux));
+            return textoAux;
+        } catch (Exception ex) {
+           
+            java.util.logging.Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+             return "";
         }
-        //System.out.println(sb);
     }
-    
-    
+
     private Screen5250 connect(String servidor, String usuario, String clave, String devName) {
         ProtocolBean pb = new ProtocolBean(usuario, clave);
         Screen5250 screen = null;
@@ -224,8 +271,7 @@ public class EjecutorController {
         Screen5250 screen = null;
         try {
             pb.setHostName(servidor);
-            
-            
+
             sessions = pb.getSession();
             pb.connect();
             screen = sessions.getScreen();
@@ -250,9 +296,9 @@ public class EjecutorController {
             ExpresionesRegularesIO ExpresionAs = util.getExpresionById(idExpresion);
             if (util.comparadorDeCaracteres(textoDePantalla, ExpresionAs.getCodError())) {
                 flag.setDescripcion(printScreenLinea(screen, ExpresionAs.getCodError()));
-                //flag.setDescripcion(ExpresionAs.getMensajeError());
                 process = false;
             }
+            flag.setAccion(ExpresionAs.getwAccionar());
         }
         flag.setFlag(process);
 
@@ -268,7 +314,7 @@ public class EjecutorController {
             String textComparador = (pantallaDto1.getScrips().split(",")[2].split(":")[1]);
             if (pantallaDto1.getScrips().contains("opc") && textoDePantalla.contains(textComparador)) {
                 if (operacion != "conec") {
-                    operaciones(dataForm2);
+                    operaciones(dataForm2, 1);
                 }
                 process = true;
             }
@@ -327,33 +373,52 @@ public class EjecutorController {
         String script = "";
         List<PantallaDto> listPantalla = listaPantallaCierre;
         int index = 0;
-         int closeC = 0;
-        for (PantallaDto pantallaDto1 : listPantalla) {
-            index++;
-            dataForm2 = pantallaDto1.getScrips().split(",");
-            if (index <= (listPantalla.size() - 1)) {
-               
-                String textComparador = listPantalla.get(index).getScrips().split(",")[2].split(":")[1];
-                do {
-                    closeC++;
-                    operaciones(dataForm2);
-                    if (util.comparadorDeCaracteres(getScreenAsString(screen).trim(), textComparador)) {
-                        flagCierre = false;
+        int closeC = 0;
+        if (listPantalla != null) {
+            if (listPantalla.size() > 0) {
+                for (PantallaDto pantallaDto1 : listPantalla) {
+                    index++;
+                    dataForm2 = pantallaDto1.getScrips().split(",");
+                    if (index <= (listPantalla.size() - 1)) {
+
+                        String textComparador = listPantalla.get(index).getScrips().split(",")[2].split(":")[1];
+                        do {
+                            closeC++;
+                            operaciones(dataForm2, 2);
+                            if (util.comparadorDeCaracteres(getScreenAsString(screen).trim(), textComparador)) {
+                                flagCierre = false;
+                            }
+                            if (closeC == numIntClose) {
+                                flagCierre = false;
+                            }
+
+                        } while (flagCierre);
+                    } else {
+                        operaciones(dataForm2, 2);
                     }
-                    if(closeC == numIntClose){
-                        flagCierre = false;
-                    }
-                    
-                    
-                } while (flagCierre);
-            } else {
-                operaciones(dataForm2);
+                }
             }
         }
         if (sessions != null) {
             sessions.disconnect();
         }
 
+    }
+
+    public void operaExpresion(String operacion) {
+        ScreenFields sf = screen.getScreenFields();
+        try {
+            Thread.sleep(1500L);
+            screen.sendKeys(operacion);
+            Thread.sleep(1500L);
+
+        } catch (InterruptedException ex) {
+            java.util.logging.Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private static String encriptar(String s) throws UnsupportedEncodingException {
+        return Base64.getEncoder().encodeToString(s.getBytes("utf-8"));
     }
 
     public void simuladorAs(TransaccionExport export) throws UnsupportedEncodingException {
@@ -373,7 +438,12 @@ public class EjecutorController {
                 dataForm = pantallaScrip.split(",");
                 pantallaDto.setId(null);
                 pantalla2 = "P" + dataForm[1].split(":")[1];
-                String actExp = dataForm[5];
+                String actExp = "";
+                if (scrits.contains("conec")) {
+                    actExp = dataForm[5];
+                } else {
+                    actExp = dataForm[7];
+                }
                 actExp = actExp.split(":")[1];
                 actExp = actExp.replace("*", "");
 
@@ -429,13 +499,13 @@ public class EjecutorController {
                                     if (numInt > 0) {
                                         for (int i = 0; i < numInt; i++) {
                                             ScreenFields sf = screen.getScreenFields();
-                                            Thread.sleep(3000L);
+                                            Thread.sleep(2000L);
                                             ScreenField userField = sf.getField(0);
                                             userField.setString(usuario);
                                             ScreenField passField = sf.getField(1);
                                             passField.setString(clave);
                                             screen.sendKeys("[enter]");
-                                            Thread.sleep(3000L);
+                                            Thread.sleep(2000L);
                                             String pantallas = getScreenAsString(screen).trim();
 
                                             log.warn(printScreen1(screen));
@@ -446,7 +516,7 @@ public class EjecutorController {
                                                     if (procesado(listaActual, indice)) {
                                                         break;
                                                     }
-                                                    Thread.sleep(2000L);
+                                                    Thread.sleep(1000L);
                                                 } else {
                                                     Boolean a = true;
                                                     PantallaDto pant = new PantallaDto();
@@ -458,6 +528,26 @@ public class EjecutorController {
                                                         pant.setTextoPantalla(printScreen(screen));
 //                                                        throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
+                                                    } else if (actExp.equals("r")) {
+
+                                                        Export expReq2 = new Export();
+                                                        do {
+                                                            operaExpresion(expReq.getAccion());
+                                                            expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                        } while ((!expReq2.getFlag()));
+
+                                                        if (procesado(listaActual, indice)) {
+                                                            break;
+                                                        }
+
+                                                    } else if (actExp.equals("s")) {
+                                                        CancelacionesDto cancelacion = new CancelacionesDto();
+                                                        cancelacion.setFlag(0);
+                                                        cancelacion.setProceso(nombreArchivo);
+                                                        cancelacion.setFecha(new Date());
+
+                                                        service.crearCancelacion(cancelacion);
+                                                        System.out.println("generar proceso de pedir valor del campo ");
                                                     }
                                                 }
                                             } else {
@@ -509,6 +599,26 @@ public class EjecutorController {
                                                     //texto = "Codigo:0010,\n" + printScreen1(screen);
                                                     texto = "Codigo:0010,\n" + expReq.getDescripcion();
                                                     throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
+                                                } else if (actExp.equals("r")) {
+
+                                                    Export expReq2 = new Export();
+                                                    do {
+                                                        operaExpresion(expReq.getAccion());
+                                                        expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                    } while ((!expReq2.getFlag()));
+
+                                                    if (procesado(listaActual, indice)) {
+                                                        break;
+                                                    }
+
+                                                } else if (actExp.equals("s")) {
+                                                    CancelacionesDto cancelacion = new CancelacionesDto();
+                                                    cancelacion.setFlag(0);
+                                                    cancelacion.setProceso(nombreArchivo);
+                                                    cancelacion.setFecha(new Date());
+
+                                                    service.crearCancelacion(cancelacion);
+                                                    System.out.println("generar proceso de pedir valor del campo ");
                                                 }
                                             }
                                         } else {
@@ -555,6 +665,26 @@ public class EjecutorController {
                                         passField.setString(clave);
                                         screen.sendKeys("[enter]");
                                         pant.setTextoPantalla(printScreen(screen));
+                                    } else if (actExp.equals("r")) {
+
+                                        Export expReq2 = new Export();
+                                        do {
+                                            operaExpresion(expReq.getAccion());
+                                            expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                        } while ((!expReq2.getFlag()));
+
+                                        if (procesado(listaActual, indice)) {
+                                            break;
+                                        }
+
+                                    } else if (actExp.equals("s")) {
+                                        CancelacionesDto cancelacion = new CancelacionesDto();
+                                        cancelacion.setFlag(0);
+                                        cancelacion.setProceso(nombreArchivo);
+                                        cancelacion.setFecha(new Date());
+
+                                        service.crearCancelacion(cancelacion);
+                                        System.out.println("generar proceso de pedir valor del campo ");
                                     }
                                 }
                             } else {
@@ -579,7 +709,7 @@ public class EjecutorController {
                                 case "f":
                                     if (numInt > 0) {
                                         for (int j = 0; j < numInt; j++) {
-                                            operaciones(dataForm);
+                                            operaciones(dataForm, 2);
                                             String pantallaTexto = getScreenAsString(screen).trim();
                                             if (expresionId > 0) {
                                                 Export expReq = ExpresionesAS4(pantallaTexto, expresionId);
@@ -599,6 +729,26 @@ public class EjecutorController {
                                                         pant.setTextoPantalla(printScreen(screen));
 //                                                        throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
+                                                    } else if (actExp.equals("r")) {
+
+                                                        Export expReq2 = new Export();
+                                                        do {
+                                                            operaExpresion(expReq.getAccion());
+                                                            expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                        } while ((!expReq2.getFlag()));
+
+                                                        if (procesado(listaActual, indice)) {
+                                                            break;
+                                                        }
+
+                                                    } else if (actExp.equals("s")) {
+                                                        CancelacionesDto cancelacion = new CancelacionesDto();
+                                                        cancelacion.setFlag(0);
+                                                        cancelacion.setProceso(nombreArchivo);
+                                                        cancelacion.setFecha(new Date());
+
+                                                        service.crearCancelacion(cancelacion);
+                                                        System.out.println("generar proceso de pedir valor del campo ");
                                                     }
                                                 }
                                             } else {
@@ -616,7 +766,7 @@ public class EjecutorController {
                                 case "w":
                                     // segmento de ciclo while de la operaciones
                                     do {
-                                        operaciones(dataForm);
+                                        operaciones(dataForm, 2);
                                         int longitud = listaActual.size();
                                         String pantalla = getScreenAsString(screen).trim();
                                         if (expresionId > 0) {
@@ -636,6 +786,52 @@ public class EjecutorController {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                                     throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
+                                                } else if (actExp.equals("r")) {
+
+                                                    Export expReq2 = new Export();
+                                                    do {
+                                                        operaExpresion(expReq.getAccion());
+                                                        expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                    } while ((!expReq2.getFlag()));
+
+                                                    if (procesado(listaActual, indice)) {
+                                                        break;
+                                                    }
+
+                                                } else if (actExp.equals("s")) {
+
+                                                    CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                                    cancelacion.setFlag(0);
+                                                    cancelacion.setOpion(opIniCance);
+                                                    cancelacion.setProceso(nombreArchivo);
+                                                    cancelacion.setAlterna((limpiarTexto(printScreen2(screen)).trim()));
+
+                                                    
+                                                    cancelacion.setFecha(new Date());
+                                                    cancelacion = service.crearCancelacion3(cancelacion);
+                                                    Boolean point = Boolean.TRUE;
+                                                    while (point) {
+                                                        if (cancelacion.getFlag().toString().equals("1")) {
+                                                            point = Boolean.FALSE;
+                                                            flag2 = false;
+                                                        } else {
+                                                            if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                                operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                                if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                                    point = Boolean.FALSE;
+                                                                    flag2 = false;
+                                                                    service.getEliminarCancelacionById(cancelacion.getId());
+                                                                }
+                                                            }
+                                                        }
+                                                        System.out.println("generar proceso de pedir valor del campo ");
+                                                        Thread.sleep(10000L);
+                                                        if (point) {
+                                                            cancelacion = service.getCancelById(cancelacion.getId());
+                                                        }
+
+                                                    }
                                                 }
                                             }
                                         } else {
@@ -647,7 +843,7 @@ public class EjecutorController {
                                     break;
                             }
                         } else {
-                            operaciones(dataForm);
+                            operaciones(dataForm, 2);
                             int longitud = listaActual.size();
                             String pantalla = getScreenAsString(screen).trim();
                             if (expresionId > 0) {
@@ -668,8 +864,25 @@ public class EjecutorController {
                                         //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                         throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                     } else if (actExp.equals("r")) {
-                                        operaciones(dataForm);
-                                        pant.setTextoPantalla(printScreen(screen));
+
+                                        Export expReq2 = new Export();
+                                        do {
+                                            operaExpresion(expReq.getAccion());
+                                            expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                        } while ((!expReq2.getFlag()));
+
+                                        if (procesado(listaActual, indice)) {
+                                            break;
+                                        }
+
+                                    } else if (actExp.equals("s")) {
+                                        CancelacionesDto cancelacion = new CancelacionesDto();
+                                        cancelacion.setFlag(0);
+                                        cancelacion.setProceso(nombreArchivo);
+                                        cancelacion.setFecha(new Date());
+
+                                        service.crearCancelacion(cancelacion);
+                                        System.out.println("generar proceso de pedir valor del campo ");
                                     }
                                 }
                             } else {
@@ -707,17 +920,95 @@ public class EjecutorController {
 
     }
 
-    public void operaciones(String[] dataForm) {
+    public String limpiarAcentos(String cadena) {
+        String limpio = null;
+        if (cadena != null) {
+            String original = cadena;
+            String cadenaNormalize = Normalizer.normalize(original, Normalizer.Form.NFD);
+            String cadenaSinAcentos = cadenaNormalize.replaceAll("[^\\p{ASCII}]", "");
+            System.out.println("Resultado: " + cadenaSinAcentos);
+            limpio = cadenaSinAcentos;
+        }
+
+        return limpio;
+    }
+
+    public String limpiarPuntuaciones(String cadena) {
+        String result = "";
+        if (cadena != null) {
+            result = cadena.replaceAll("\\p{Punct}", "");
+        }
+        return result;
+    }
+
+    public String limpiarTexto(String cadena) {
+        if (cadena != null) {
+            cadena = limpiarAcentos(cadena);
+            cadena = limpiarPuntuaciones(cadena);
+
+        }
+        return cadena;
+    }
+
+    public void operaCancelacion(String operacion, String valor) {
+        ScreenFields sf = screen.getScreenFields();
+        try {
+            ScreenField userField = sf.getField(0);
+            userField.setString(valor);
+            Thread.sleep(1000L);
+            screen.sendKeys(operacion);
+            Thread.sleep(1000L);
+
+            //logger.info("Message de cancelacion 1");
+        } catch (InterruptedException ex) {
+            //java.util.logging.Logger.getLogger(AdminRobotController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public int numInputs(Screen5250 screen) {
+        ScreenFields sf = screen.getScreenFields();
+        String s = getScreenAsString(screen);
+        String text = "";
+        int indice = 0;
+        for (int i = 1; i < sf.getFieldCount(); i++) {
+            InputDto input = new InputDto();
+            if (!sf.getField(i).isBypassField()) {
+                int pos = sf.getField(i).startPos();
+                int posIni = 0;
+                if (pos > 40) {
+                    posIni = pos - 40;
+                }
+                text = s.substring(posIni, pos);
+                String[] labelInput = text.split("\\.");
+                //System.out.println(" texto del label -->  "+labelInput[0].trim());
+
+                if (labelInput[0].trim().equals("===>")) {
+                    break;
+                }
+
+            }
+            indice = i;
+
+        }
+        return indice;
+    }
+
+    public void operaciones(String[] dataForm, int tipoOperacional) {//screen
         ScreenFields sf = screen.getScreenFields();
         try {
             Thread.sleep(3000L);
             for (int i = 9; i < dataForm.length; i++) {
                 String datos = dataForm[i];
-                datos = findParam(datos);
                 String[] datoAux = datos.split(":");
                 String indice = datoAux[0].split("_")[1];
                 String valor = datoAux[1];
-                valor = valor.replace("*", "");;
+                valor = valor.replace("*", "");
+
+                if (util.comparadorDeCaracteres2(valor, scape) && tipoOperacional == 2) {
+                    indice = numInputs(screen) + "";
+                    System.out.println("modifico el indice");
+                }
+                valor = valor.replace(scape, "");
 
                 if (indice.equals("0")) {
                     ScreenField field_0 = sf.getField(0);
@@ -965,20 +1256,16 @@ public class EjecutorController {
                     field_49.setString(valor);
                 }
             }
-
             if (dataForm[3].split(":")[1].equals("[enter]")) {
                 screen.sendKeys("[enter]");
             } else {
                 screen.sendKeys(dataForm[3].split(":")[1]);
             }
-
-            Thread.sleep(3000L);
-            String pantalla = printScreen1(screen);
-            log.warn(pantalla);
-
+            Thread.sleep(2000L);
 
         } catch (InterruptedException ex) {
-            //          Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
+            //java.util.logging.Logger.getLogger(AdminRobotController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
