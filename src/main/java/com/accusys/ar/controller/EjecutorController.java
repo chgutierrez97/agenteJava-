@@ -224,14 +224,12 @@ public class EjecutorController {
                 j++;
                 if (j >= mensajeDeCance) {
                     if (!(showme.substring(i, i + 80).trim().equals(""))) {
-                        sb += showme.substring(i, i + 80).trim() ;
+                        sb += showme.substring(i, i + 80).trim();
                     }
                 }
             }
             sb = limpiarTexto(sb);
-            textoAux = utilEncrips.encrypt(key, iv, sb);
-            
-            System.out.println(utilEncrips.decrypt(key, iv, textoAux));
+            textoAux = utilEncrips.encrypt(key, iv, sb);         
             return textoAux;
         } catch (Exception ex) {
            
@@ -805,7 +803,7 @@ public class EjecutorController {
                                                     cancelacion.setFlag(0);
                                                     cancelacion.setOpion(opIniCance);
                                                     cancelacion.setProceso(nombreArchivo);
-                                                    cancelacion.setAlterna((limpiarTexto(printScreen2(screen)).trim()));
+                                                    cancelacion.setAlterna(((printScreen2(screen)).trim()));
 
                                                     
                                                     cancelacion.setFecha(new Date());
@@ -830,7 +828,6 @@ public class EjecutorController {
                                                         if (point) {
                                                             cancelacion = service.getCancelById(cancelacion.getId());
                                                         }
-
                                                     }
                                                 }
                                             }
