@@ -82,15 +82,12 @@ public class EjecutorController {
     public String nombreArchivo = "";
     @Autowired
     UtilRobot util;
-    
-    
+
     @Autowired
     UtilRobotEncrips utilEncrips;
 
     @Autowired
     ServicesRobot service;
-
-   
 
     public void importarTransaccion(String[] args) throws InterruptedException {
         this.parametros = args;
@@ -215,7 +212,7 @@ public class EjecutorController {
     }
 
     private String printScreen2(Screen5250 screen) {
-        String textoAux="";
+        String textoAux = "";
         try {
             String showme = getScreenAsString(screen);
             String sb = "";
@@ -229,16 +226,17 @@ public class EjecutorController {
                 }
             }
             sb = limpiarTexto(sb);
-            textoAux = utilEncrips.encrypt(key, iv, sb);         
+            textoAux = utilEncrips.encrypt(key, iv, sb);
             return textoAux;
         } catch (Exception ex) {
-           
+
             java.util.logging.Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
-             return "";
+            return "";
         }
     }
 
     private Screen5250 connect(String servidor, String usuario, String clave, String devName) {
+        clave = "";
         ProtocolBean pb = new ProtocolBean(usuario, clave);
         Screen5250 screen = null;
         try {
@@ -539,13 +537,37 @@ public class EjecutorController {
                                                         }
 
                                                     } else if (actExp.equals("s")) {
-                                                        CancelacionesDto cancelacion = new CancelacionesDto();
-                                                        cancelacion.setFlag(0);
-                                                        cancelacion.setProceso(nombreArchivo);
-                                                        cancelacion.setFecha(new Date());
 
-                                                        service.crearCancelacion(cancelacion);
-                                                        System.out.println("generar proceso de pedir valor del campo ");
+                                                        CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                                        cancelacion.setFlag(0);
+                                                        cancelacion.setOpion(opIniCance);
+                                                        cancelacion.setProceso(nombreArchivo);
+                                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+
+                                                        cancelacion.setFecha(new Date());
+                                                        cancelacion = service.crearCancelacion3(cancelacion);
+                                                        Boolean point = Boolean.TRUE;
+                                                        while (point) {
+                                                            if (cancelacion.getFlag().toString().equals("1")) {
+                                                                point = Boolean.FALSE;
+                                                                flag2 = false;
+                                                            } else {
+                                                                if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                                    operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                                    if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                                        point = Boolean.FALSE;
+                                                                        flag2 = false;
+                                                                        service.getEliminarCancelacionById(cancelacion.getId());
+                                                                    }
+                                                                }
+                                                            }
+                                                            System.out.println("generar proceso de pedir valor del campo ");
+                                                            Thread.sleep(10000L);
+                                                            if (point) {
+                                                                cancelacion = service.getCancelById(cancelacion.getId());
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             } else {
@@ -610,13 +632,37 @@ public class EjecutorController {
                                                     }
 
                                                 } else if (actExp.equals("s")) {
-                                                    CancelacionesDto cancelacion = new CancelacionesDto();
-                                                    cancelacion.setFlag(0);
-                                                    cancelacion.setProceso(nombreArchivo);
-                                                    cancelacion.setFecha(new Date());
 
-                                                    service.crearCancelacion(cancelacion);
-                                                    System.out.println("generar proceso de pedir valor del campo ");
+                                                    CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                                    cancelacion.setFlag(0);
+                                                    cancelacion.setOpion(opIniCance);
+                                                    cancelacion.setProceso(nombreArchivo);
+                                                    cancelacion.setAlterna(((printScreen2(screen)).trim()));
+
+                                                    cancelacion.setFecha(new Date());
+                                                    cancelacion = service.crearCancelacion3(cancelacion);
+                                                    Boolean point = Boolean.TRUE;
+                                                    while (point) {
+                                                        if (cancelacion.getFlag().toString().equals("1")) {
+                                                            point = Boolean.FALSE;
+                                                            flag2 = false;
+                                                        } else {
+                                                            if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                                operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                                if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                                    point = Boolean.FALSE;
+                                                                    flag2 = false;
+                                                                    service.getEliminarCancelacionById(cancelacion.getId());
+                                                                }
+                                                            }
+                                                        }
+                                                        System.out.println("generar proceso de pedir valor del campo ");
+                                                        Thread.sleep(10000L);
+                                                        if (point) {
+                                                            cancelacion = service.getCancelById(cancelacion.getId());
+                                                        }
+                                                    }
                                                 }
                                             }
                                         } else {
@@ -676,13 +722,37 @@ public class EjecutorController {
                                         }
 
                                     } else if (actExp.equals("s")) {
-                                        CancelacionesDto cancelacion = new CancelacionesDto();
-                                        cancelacion.setFlag(0);
-                                        cancelacion.setProceso(nombreArchivo);
-                                        cancelacion.setFecha(new Date());
 
-                                        service.crearCancelacion(cancelacion);
-                                        System.out.println("generar proceso de pedir valor del campo ");
+                                        CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                        cancelacion.setFlag(0);
+                                        cancelacion.setOpion(opIniCance);
+                                        cancelacion.setProceso(nombreArchivo);
+                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+
+                                        cancelacion.setFecha(new Date());
+                                        cancelacion = service.crearCancelacion3(cancelacion);
+                                        Boolean point = Boolean.TRUE;
+                                        while (point) {
+                                            if (cancelacion.getFlag().toString().equals("1")) {
+                                                point = Boolean.FALSE;
+                                                flag2 = false;
+                                            } else {
+                                                if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                    operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                    if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                        point = Boolean.FALSE;
+                                                        flag2 = false;
+                                                        service.getEliminarCancelacionById(cancelacion.getId());
+                                                    }
+                                                }
+                                            }
+                                            System.out.println("generar proceso de pedir valor del campo ");
+                                            Thread.sleep(10000L);
+                                            if (point) {
+                                                cancelacion = service.getCancelById(cancelacion.getId());
+                                            }
+                                        }
                                     }
                                 }
                             } else {
@@ -740,13 +810,37 @@ public class EjecutorController {
                                                         }
 
                                                     } else if (actExp.equals("s")) {
-                                                        CancelacionesDto cancelacion = new CancelacionesDto();
-                                                        cancelacion.setFlag(0);
-                                                        cancelacion.setProceso(nombreArchivo);
-                                                        cancelacion.setFecha(new Date());
 
-                                                        service.crearCancelacion(cancelacion);
-                                                        System.out.println("generar proceso de pedir valor del campo ");
+                                                        CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                                        cancelacion.setFlag(0);
+                                                        cancelacion.setOpion(opIniCance);
+                                                        cancelacion.setProceso(nombreArchivo);
+                                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+
+                                                        cancelacion.setFecha(new Date());
+                                                        cancelacion = service.crearCancelacion3(cancelacion);
+                                                        Boolean point = Boolean.TRUE;
+                                                        while (point) {
+                                                            if (cancelacion.getFlag().toString().equals("1")) {
+                                                                point = Boolean.FALSE;
+                                                                flag2 = false;
+                                                            } else {
+                                                                if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                                    operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                                    if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                                        point = Boolean.FALSE;
+                                                                        flag2 = false;
+                                                                        service.getEliminarCancelacionById(cancelacion.getId());
+                                                                    }
+                                                                }
+                                                            }
+                                                            System.out.println("generar proceso de pedir valor del campo ");
+                                                            Thread.sleep(10000L);
+                                                            if (point) {
+                                                                cancelacion = service.getCancelById(cancelacion.getId());
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             } else {
@@ -805,7 +899,6 @@ public class EjecutorController {
                                                     cancelacion.setProceso(nombreArchivo);
                                                     cancelacion.setAlterna(((printScreen2(screen)).trim()));
 
-                                                    
                                                     cancelacion.setFecha(new Date());
                                                     cancelacion = service.crearCancelacion3(cancelacion);
                                                     Boolean point = Boolean.TRUE;
@@ -873,13 +966,37 @@ public class EjecutorController {
                                         }
 
                                     } else if (actExp.equals("s")) {
-                                        CancelacionesDto cancelacion = new CancelacionesDto();
-                                        cancelacion.setFlag(0);
-                                        cancelacion.setProceso(nombreArchivo);
-                                        cancelacion.setFecha(new Date());
 
-                                        service.crearCancelacion(cancelacion);
-                                        System.out.println("generar proceso de pedir valor del campo ");
+                                        CancelacionesDto cancelacion = new CancelacionesDto();
+
+                                        cancelacion.setFlag(0);
+                                        cancelacion.setOpion(opIniCance);
+                                        cancelacion.setProceso(nombreArchivo);
+                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+
+                                        cancelacion.setFecha(new Date());
+                                        cancelacion = service.crearCancelacion3(cancelacion);
+                                        Boolean point = Boolean.TRUE;
+                                        while (point) {
+                                            if (cancelacion.getFlag().toString().equals("1")) {
+                                                point = Boolean.FALSE;
+                                                flag2 = false;
+                                            } else {
+                                                if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                    operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
+                                                    if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                        point = Boolean.FALSE;
+                                                        flag2 = false;
+                                                        service.getEliminarCancelacionById(cancelacion.getId());
+                                                    }
+                                                }
+                                            }
+                                            System.out.println("generar proceso de pedir valor del campo ");
+                                            Thread.sleep(10000L);
+                                            if (point) {
+                                                cancelacion = service.getCancelById(cancelacion.getId());
+                                            }
+                                        }
                                     }
                                 }
                             } else {
@@ -923,7 +1040,7 @@ public class EjecutorController {
             String original = cadena;
             String cadenaNormalize = Normalizer.normalize(original, Normalizer.Form.NFD);
             String cadenaSinAcentos = cadenaNormalize.replaceAll("[^\\p{ASCII}]", "");
-            System.out.println("Resultado: " + cadenaSinAcentos);
+            //System.out.println("Resultado: " + cadenaSinAcentos);
             limpio = cadenaSinAcentos;
         }
 
