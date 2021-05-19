@@ -893,7 +893,6 @@ public class EjecutorController {
                                                 } else if (actExp.equals("s")) {
 
                                                     CancelacionesDto cancelacion = new CancelacionesDto();
-
                                                     cancelacion.setFlag(0);
                                                     cancelacion.setOpion(opIniCance);
                                                     cancelacion.setProceso(nombreArchivo);
