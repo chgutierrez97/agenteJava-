@@ -9,16 +9,19 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static java.lang.System.exit;
 import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 @SpringBootApplication
 @EnableAutoConfiguration
 public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
-private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
+    
     @Autowired
     EjecutorController ejecutor;
 
     public static void main(String[] args) throws Exception {
+      
         SpringApplication app = new SpringApplication(AgenteSpringBootConsoleApplication.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
@@ -26,9 +29,9 @@ private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(
 
     @Override
     public void run(String... args) throws Exception {   
-//        String[] nombres = {"1620659627661.json"};//,"P1-F2:ACCUSYS"
-//        args = nombres;
-        if (args.length > 0) {
+        String[] nombres = {"1622731784221.json"};//,"P1-F2:ACCUSYS"
+        args = nombres;
+        if (args.length >0) {
             ejecutor.importarTransaccion(args);
         } else {
             System.err.println("Codigo:0001 No hay variables de inicio de operacion favor verificar  ");

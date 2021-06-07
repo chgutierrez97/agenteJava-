@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.tn5250j.Session5250;
@@ -46,7 +47,7 @@ import org.tn5250j.framework.tn5250.ScreenPlanes;
 @PropertySource("classpath:application.properties")
 public class EjecutorController {
 
-    private static final Logger log = LogManager.getLogger(AgenteSpringBootConsoleApplication.class.getName());
+    org.slf4j.Logger log = LoggerFactory.getLogger(EjecutorController.class);
 
     public Screen5250 screen;
     public boolean conectado;
@@ -90,6 +91,8 @@ public class EjecutorController {
     ServicesRobot service;
 
     public void importarTransaccion(String[] args) throws InterruptedException {
+
+        System.out.println("si-> " + args);
         this.parametros = args;
         if (args.length > 0) {
             nombreArchivo = args[0];
@@ -428,15 +431,34 @@ public class EjecutorController {
             for (PantallaDto pantallaDto : listaActual) {
                 PantallaDto panti = new PantallaDto();
                 scrits = pantallaDto.getScrips();
-                scrits = URLDecoder.decode(scrits, "UTF-8");
-                String pantallaScrip = pantallaDto.getScrips();
-                pantallaScrip = URLDecoder.decode(pantallaScrip, "UTF-8");
+                String  pantallaScrip = pantallaDto.getScrips();
+                if (!scrits.contains("conec")) {
+                    scrits = URLDecoder.decode(scrits, "UTF-8");
+                    pantallaScrip = URLDecoder.decode(pantallaScrip, "UTF-8");
+                }
                 dataForm = pantallaScrip.split(",");
                 pantallaDto.setId(null);
                 pantalla2 = "P" + dataForm[1].split(":")[1];
                 String actExp = "";
                 if (scrits.contains("conec")) {
                     actExp = dataForm[5];
+                    if (dataForm.length == 10) {
+                        actExp = dataForm[5];
+                        String abd = dataForm[9].split(":")[1];
+                        String abc = dataForm[9].split(":")[0];
+                        String ab = utilEncrips.decrypt(key, iv, abd);
+                        dataForm[9] = abc + ":" + ab;
+                        pantallaScrip = pantallaScrip.replace(abd, ab);
+
+                    } else {
+
+                        String abd = dataForm[10].split(":")[1];
+                        String abc = dataForm[10].split(":")[0];
+                        String ab = utilEncrips.decrypt(key, iv, abd);
+                        dataForm[9] = abc + ":" + ab;
+                        pantallaScrip = pantallaScrip.replace(abd, ab);
+                    }
+
                 } else {
                     actExp = dataForm[7];
                 }
@@ -480,7 +502,7 @@ public class EjecutorController {
                     }
 
                     screen = connect(host, usuario, clave, devName);
-                    log.warn(printScreen1(screen));
+                    log.info(printScreen1(screen));
                     //System.out.println(getScreenAsString(screen));
                     if (sessions.isConnected()) {
                         String idCiclo = dataForm[2].split(":")[1];
@@ -504,7 +526,7 @@ public class EjecutorController {
                                             Thread.sleep(2000L);
                                             String pantallas = getScreenAsString(screen).trim();
 
-                                            log.warn(printScreen1(screen));
+                                            log.info(printScreen1(screen));
 //                                            System.out.println(pantalla);
                                             if (expresionId > 0) {
                                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
@@ -531,8 +553,9 @@ public class EjecutorController {
                                                             operaExpresion(expReq.getAccion());
                                                             expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                                         } while ((!expReq2.getFlag()));
-
+                                                    
                                                         if (procesado(listaActual, indice)) {
+                                                            log.info(printScreen1(screen));
                                                             break;
                                                         }
 
@@ -568,10 +591,12 @@ public class EjecutorController {
                                                                 cancelacion = service.getCancelById(cancelacion.getId());
                                                             }
                                                         }
+                                                        log.info(printScreen1(screen));
                                                     }
                                                 }
                                             } else {
                                                 if (procesado(listaActual, indice)) {
+                                                    log.info(printScreen1(screen));
                                                     break;
                                                 }
                                                 Thread.sleep(2000L);
@@ -596,7 +621,7 @@ public class EjecutorController {
                                         Thread.sleep(3000L);
                                         int longitud = listaActual.size();
 
-                                        log.warn(printScreen1(screen));
+                                        log.info(printScreen1(screen));
 //                                        System.out.println(pantalla);
                                         if (expresionId > 0) {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
@@ -628,6 +653,7 @@ public class EjecutorController {
                                                     } while ((!expReq2.getFlag()));
 
                                                     if (procesado(listaActual, indice)) {
+                                                        log.info(printScreen1(screen));
                                                         break;
                                                     }
 
@@ -663,10 +689,12 @@ public class EjecutorController {
                                                             cancelacion = service.getCancelById(cancelacion.getId());
                                                         }
                                                     }
+                                                    log.info(printScreen1(screen));
                                                 }
                                             }
                                         } else {
                                             if (procesado(listaActual, indice)) {
+                                                log.info(printScreen1(screen));
                                                 flag2 = false;
                                             }
                                             Thread.sleep(2000L);
@@ -684,7 +712,7 @@ public class EjecutorController {
                             screen.sendKeys("[enter]");
                             Thread.sleep(3000L);
 
-                            log.warn(printScreen1(screen));
+                            log.info(printScreen1(screen));
                             // System.out.println(pantalla);
                             if (expresionId > 0) {
                                 Export expReq = ExpresionesAS4(pantalla, expresionId);
@@ -718,6 +746,7 @@ public class EjecutorController {
                                         } while ((!expReq2.getFlag()));
 
                                         if (procesado(listaActual, indice)) {
+                                            log.info(printScreen1(screen));
                                             break;
                                         }
 
@@ -753,6 +782,7 @@ public class EjecutorController {
                                                 cancelacion = service.getCancelById(cancelacion.getId());
                                             }
                                         }
+                                        log.info(printScreen1(screen));
                                     }
                                 }
                             } else {
@@ -783,6 +813,7 @@ public class EjecutorController {
                                                 Export expReq = ExpresionesAS4(pantallaTexto, expresionId);
                                                 if (expReq.getFlag()) {
                                                     if (procesado(listaActual, indice)) {
+                                                        log.info(printScreen1(screen));
                                                         break;
                                                     }
                                                 } else {
@@ -806,6 +837,7 @@ public class EjecutorController {
                                                         } while ((!expReq2.getFlag()));
 
                                                         if (procesado(listaActual, indice)) {
+                                                            log.info(printScreen1(screen));
                                                             break;
                                                         }
 
@@ -841,10 +873,12 @@ public class EjecutorController {
                                                                 cancelacion = service.getCancelById(cancelacion.getId());
                                                             }
                                                         }
+                                                        log.info(printScreen1(screen));
                                                     }
                                                 }
                                             } else {
                                                 if (procesado(listaActual, indice)) {
+                                                    log.info(printScreen1(screen));
                                                     break;
                                                 }
                                             }
@@ -865,6 +899,7 @@ public class EjecutorController {
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
                                                 if (procesado(listaActual, indice)) {
+                                                    log.info(printScreen1(screen));
                                                     flag2 = false;
                                                 }
                                             } else {
@@ -887,6 +922,7 @@ public class EjecutorController {
                                                     } while ((!expReq2.getFlag()));
 
                                                     if (procesado(listaActual, indice)) {
+                                                        log.info(printScreen1(screen));
                                                         break;
                                                     }
 
@@ -921,10 +957,12 @@ public class EjecutorController {
                                                             cancelacion = service.getCancelById(cancelacion.getId());
                                                         }
                                                     }
+                                                    log.info(printScreen1(screen));
                                                 }
                                             }
                                         } else {
                                             if (procesado(listaActual, indice)) {
+                                                log.info(printScreen1(screen));
                                                 flag2 = false;
                                             }
                                         }
@@ -935,10 +973,12 @@ public class EjecutorController {
                             operaciones(dataForm, 2);
                             int longitud = listaActual.size();
                             String pantalla = getScreenAsString(screen).trim();
+                            log.info(pantalla);
                             if (expresionId > 0) {
                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                 if (expReq.getFlag()) {
                                     if (procesado(listaActual, indice)) {
+                                        log.info(printScreen1(screen));
                                         flag2 = false;
                                     }
                                 } else {
@@ -958,9 +998,11 @@ public class EjecutorController {
                                         do {
                                             operaExpresion(expReq.getAccion());
                                             expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                            
                                         } while ((!expReq2.getFlag()));
 
                                         if (procesado(listaActual, indice)) {
+                                            log.info(printScreen1(screen));
                                             break;
                                         }
 
@@ -996,10 +1038,12 @@ public class EjecutorController {
                                                 cancelacion = service.getCancelById(cancelacion.getId());
                                             }
                                         }
+                                        log.info(printScreen1(screen));
                                     }
                                 }
                             } else {
                                 if (procesado(listaActual, indice)) {
+                                    log.info(printScreen1(screen));
                                     flag2 = false;
                                 }
                             }
@@ -1017,18 +1061,22 @@ public class EjecutorController {
             cierreOperaciones(export.getListaPantallaCierre());
         } catch (ExcepcionBaseMsn ex) {
             String procesado = ex.getMessage();
+            
             //sessions.disconnect();
             cierreOperaciones(export.getListaPantallaCierre());
             if (util.comparadorDeCaracteres(procesado, "0020")) {
                 System.out.println(procesado);
+                log.info(procesado);
             } else {
                 System.err.println(procesado);
+                log.error(procesado);
             }
-
         } catch (InterruptedException ex) {
             System.err.print(ex.getMessage());
             cierreOperaciones(export.getListaPantallaCierre());
             //Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
