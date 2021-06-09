@@ -1131,7 +1131,7 @@ public class EjecutorController {
         String s = getScreenAsString(screen);
         String text = "";
         int indice = 0;
-        for (int i = 1; i < sf.getFieldCount(); i++) {
+        for (int i = 0; i < sf.getFieldCount(); ) {
             InputDto input = new InputDto();
             if (!sf.getField(i).isBypassField()) {
                 int pos = sf.getField(i).startPos();
@@ -1142,14 +1142,12 @@ public class EjecutorController {
                 text = s.substring(posIni, pos);
                 String[] labelInput = text.split("\\.");
                 //System.out.println(" texto del label -->  "+labelInput[0].trim());
-
                 if (labelInput[0].trim().equals("===>")) {
                     break;
                 }
-
-            }
+            }          
             indice = i;
-
+            ++i;
         }
         return indice;
     }
