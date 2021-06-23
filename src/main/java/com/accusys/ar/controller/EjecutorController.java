@@ -19,6 +19,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import java.net.UnknownHostException;
 import java.text.Normalizer;
@@ -27,6 +29,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -92,7 +95,6 @@ public class EjecutorController {
 
     public void importarTransaccion(String[] args) throws InterruptedException {
 
-        System.out.println("si-> " + args);
         this.parametros = args;
         if (args.length > 0) {
             nombreArchivo = args[0];
@@ -230,7 +232,7 @@ public class EjecutorController {
             }
             sb = limpiarTexto(sb);
             textoAux = utilEncrips.encrypt(key, iv, sb);
-            return textoAux;
+            return sb;
         } catch (Exception ex) {
 
             java.util.logging.Logger.getLogger(EjecutorController.class.getName()).log(Level.SEVERE, null, ex);
@@ -324,22 +326,29 @@ public class EjecutorController {
     private Boolean procesado(List<PantallaDto> listaActual, int indice) throws ExcepcionBaseMsn {
         int longitud = listaActual.size();
         Boolean flag = false;
-
+        System.out.println(" metodo --> procesado tamaño lista --> " + longitud + " indice : " + indice);
         if (longitud > (indice + 1)) {
+            System.out.println(" metodo --> 1er if");
             PantallaDto pantallaSiguiente = listaActual.get(indice + 1);
 
             if (pantallaSiguiente.getInputs().size() > 0) {
-                if (!(pantallaSiguiente.getScrips().contains("opt"))) {
+                System.out.println(" metodo --> 2do  if" + pantallaSiguiente.getInputs().size());
+                if ((pantallaSiguiente.getScrips().contains("oper") || pantallaSiguiente.getScrips().contains("conec"))) {//opt
+                    System.out.println(" metodo --> 3er  if contiene " + pantallaSiguiente.getScrips());
                     String texto = (pantallaSiguiente.getInputs().get(0).getValue()).trim();
+                    System.out.println("Texto a compara con la panatalla ---> " + texto);
                     PantallaDto pant = new PantallaDto();
                     if (util.comparadorDeCaracteres(getScreenAsString(screen), texto)) {
+                        System.out.println(" metodo 4to if ");
                         pant.setTextoPantalla(printScreen(screen));
                         flag = true;
                     } else {
                         if (operacionesAlternativas(getScreenAsString(screen), listaActual, "conec")) {
+                            System.out.println(" metodo else del 4to if pantalla es conec ");
                             pant.setTextoPantalla(printScreen(screen));
                             throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                         } else {
+                            System.out.println("else del else ");
                             pant.setTextoPantalla(printScreen(screen));
                             throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                         }
@@ -347,6 +356,7 @@ public class EjecutorController {
                 }
             }
         } else {
+            System.out.println("longitud de la lista actual es menor al indice ");
             //System.out.println(printScreen1(screen));
             flag = true;
             throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
@@ -407,6 +417,7 @@ public class EjecutorController {
     public void operaExpresion(String operacion) {
         ScreenFields sf = screen.getScreenFields();
         try {
+
             Thread.sleep(1500L);
             screen.sendKeys(operacion);
             Thread.sleep(1500L);
@@ -431,7 +442,8 @@ public class EjecutorController {
             for (PantallaDto pantallaDto : listaActual) {
                 PantallaDto panti = new PantallaDto();
                 scrits = pantallaDto.getScrips();
-                String  pantallaScrip = pantallaDto.getScrips();
+                System.out.println("paso 1  --> Scrps --> " + scrits);
+                String pantallaScrip = pantallaDto.getScrips();
                 if (!scrits.contains("conec")) {
                     scrits = URLDecoder.decode(scrits, "UTF-8");
                     pantallaScrip = URLDecoder.decode(pantallaScrip, "UTF-8");
@@ -442,21 +454,25 @@ public class EjecutorController {
                 String actExp = "";
                 if (scrits.contains("conec")) {
                     actExp = dataForm[5];
+                    System.out.println("paso 2  --> actExp --> " + actExp);
                     if (dataForm.length == 10) {
+
                         actExp = dataForm[5];
                         String abd = dataForm[9].split(":")[1];
                         String abc = dataForm[9].split(":")[0];
                         String ab = utilEncrips.decrypt(key, iv, abd);
                         dataForm[9] = abc + ":" + ab;
                         pantallaScrip = pantallaScrip.replace(abd, ab);
+                        System.out.println("paso 2.1  --> dataForm[9] --> " + dataForm[9] + " pantallaScrip --> " + pantallaScrip);
 
                     } else {
 
                         String abd = dataForm[10].split(":")[1];
                         String abc = dataForm[10].split(":")[0];
                         String ab = utilEncrips.decrypt(key, iv, abd);
-                        dataForm[9] = abc + ":" + ab;
+                        dataForm[10] = abc + ":" + ab;
                         pantallaScrip = pantallaScrip.replace(abd, ab);
+                        System.out.println("paso 2.2  --> dataForm[10] --> " + dataForm[10] + " pantallaScrip --> " + pantallaScrip);
                     }
 
                 } else {
@@ -466,11 +482,11 @@ public class EjecutorController {
                 actExp = actExp.replace("*", "");
 
                 if (scrits.contains("conec")) {
-
+                    System.out.println("paso 3  --> conec");
                     boolean flag2 = true;
                     String devName = "", host = "", usuario = "", clave = "";
                     if (util.comparadorDeCaracteres(scrits, "w_deviceName")) {
-
+                        System.out.println("paso 3.1  --> conec --> w_deviceName");
                         devName = dataForm[7];
                         devName = devName.split(":")[1];
                         devName = devName.replace("*", "");
@@ -488,7 +504,7 @@ public class EjecutorController {
                         clave = clave.replace("*", "");
 
                     } else {
-
+                        System.out.println("paso 3.1  --> conec --> else w_deviceName");
                         host = dataForm[7];
                         host = host.split(":")[1];
                         host = host.replace("*", "");
@@ -503,11 +519,14 @@ public class EjecutorController {
 
                     screen = connect(host, usuario, clave, devName);
                     log.info(printScreen1(screen));
-                    //System.out.println(getScreenAsString(screen));
+                    System.out.println(getScreenAsString(screen));
                     if (sessions.isConnected()) {
+                        System.out.println("paso 3.2  --> session conec true");
                         String idCiclo = dataForm[2].split(":")[1];
                         Integer numInt = Integer.valueOf(dataForm[3].split(":")[1]);
                         Integer expresionId = Integer.valueOf(dataForm[4].split(":")[1]);
+
+                        System.out.println("paso 3.2  --> idCiclo -->" + idCiclo + " numInt-->" + numInt + " expresionId -->" + expresionId);
 
                         localizadorPantalla(dataForm);
                         if (!idCiclo.equals("0")) {
@@ -515,6 +534,7 @@ public class EjecutorController {
                                 // segmento de ciclo for de la conexion;
                                 case "f":
                                     if (numInt > 0) {
+                                        System.out.println("paso 3.2.1 --> f");
                                         for (int i = 0; i < numInt; i++) {
                                             ScreenFields sf = screen.getScreenFields();
                                             Thread.sleep(2000L);
@@ -525,17 +545,20 @@ public class EjecutorController {
                                             screen.sendKeys("[enter]");
                                             Thread.sleep(2000L);
                                             String pantallas = getScreenAsString(screen).trim();
-
+                                            System.out.println("paso 3.2.1 --> f --> enter");
                                             log.info(printScreen1(screen));
 //                                            System.out.println(pantalla);
                                             if (expresionId > 0) {
+                                                System.out.println("paso 3.2.1 --> f --> expresionId  true");
                                                 Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                System.out.println("paso 3.2.1 --> f --> expresionId  true --> expReq " + expReq.getFlag());
                                                 if (expReq.getFlag()) {
                                                     if (procesado(listaActual, indice)) {
                                                         break;
                                                     }
                                                     Thread.sleep(1000L);
                                                 } else {
+                                                    System.out.println("paso 3.2.1 --> f --> expresionId  true --> actExp " + actExp);
                                                     Boolean a = true;
                                                     PantallaDto pant = new PantallaDto();
                                                     if (actExp.equals("i")) {
@@ -553,7 +576,7 @@ public class EjecutorController {
                                                             operaExpresion(expReq.getAccion());
                                                             expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                                         } while ((!expReq2.getFlag()));
-                                                    
+
                                                         if (procesado(listaActual, indice)) {
                                                             log.info(printScreen1(screen));
                                                             break;
@@ -566,7 +589,11 @@ public class EjecutorController {
                                                         cancelacion.setFlag(0);
                                                         cancelacion.setOpion(opIniCance);
                                                         cancelacion.setProceso(nombreArchivo);
-                                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+                                                        String alterna = (printScreen2(screen)).trim();
+
+                                                        alterna = URLEncoder.encode(alterna, "UTF-8");
+
+                                                        cancelacion.setAlterna((alterna));
 
                                                         cancelacion.setFecha(new Date());
                                                         cancelacion = service.crearCancelacion3(cancelacion);
@@ -610,6 +637,7 @@ public class EjecutorController {
                                 case "w":
                                     // segmento de ciclo While de la conexion;   
                                     do {
+                                        System.out.println("paso 3.3.1 --> w");
                                         String texto = "";
                                         ScreenFields sf = screen.getScreenFields();
                                         Thread.sleep(3000L);
@@ -620,11 +648,14 @@ public class EjecutorController {
                                         screen.sendKeys("[enter]");
                                         Thread.sleep(3000L);
                                         int longitud = listaActual.size();
+                                        System.out.println("paso 3.3.1 --> w --> enter");
 
                                         log.info(printScreen1(screen));
 //                                        System.out.println(pantalla);
                                         if (expresionId > 0) {
+                                            System.out.println("paso 3.3.1 --> w --> expresionId -->" + expresionId);
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                            System.out.println("paso 3.3.1 --> w --> expReq --> " + expReq);
                                             if (expReq.getFlag()) {
                                                 if (procesado(listaActual, indice)) {
                                                     flag2 = false;
@@ -632,6 +663,7 @@ public class EjecutorController {
                                                 Thread.sleep(2000L);
                                             } else {
                                                 PantallaDto pant = new PantallaDto();
+                                                System.out.println("paso 3.3.1 --> w --> expReq --> " + expReq);
                                                 if (actExp.equals("i")) {
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     flag2 = false;
@@ -664,7 +696,9 @@ public class EjecutorController {
                                                     cancelacion.setFlag(0);
                                                     cancelacion.setOpion(opIniCance);
                                                     cancelacion.setProceso(nombreArchivo);
-                                                    cancelacion.setAlterna(((printScreen2(screen)).trim()));
+                                                    String alterna = (printScreen2(screen)).trim();
+                                                    alterna = URLEncoder.encode(alterna, "UTF-8");
+                                                    cancelacion.setAlterna((alterna));
 
                                                     cancelacion.setFecha(new Date());
                                                     cancelacion = service.crearCancelacion3(cancelacion);
@@ -693,9 +727,11 @@ public class EjecutorController {
                                                 }
                                             }
                                         } else {
+                                            System.out.println("else del expresionId");
                                             if (procesado(listaActual, indice)) {
                                                 log.info(printScreen1(screen));
                                                 flag2 = false;
+                                                System.out.println(" flag2 --> " + flag2);
                                             }
                                             Thread.sleep(2000L);
                                         }
@@ -703,6 +739,8 @@ public class EjecutorController {
                                     break;
                             }
                         } else {
+
+                            System.out.println("paso 3.2.3 --> sin ciclos");
                             ScreenFields sf = screen.getScreenFields();
                             Thread.sleep(3000L);
                             ScreenField userField = sf.getField(0);
@@ -715,12 +753,16 @@ public class EjecutorController {
                             log.info(printScreen1(screen));
                             // System.out.println(pantalla);
                             if (expresionId > 0) {
-                                Export expReq = ExpresionesAS4(pantalla, expresionId);
+                                System.out.println("paso 3.2.3 --> sin ciclos expresionId -->" + expresionId);
+                                // Export expReq = ExpresionesAS4(pantalla, expresionId);
+                                Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                System.out.println("paso 3.2.3 --> sin ciclos expReq.getFlag() -->" + expReq.getFlag());
                                 if (expReq.getFlag()) {
                                     int longitud = listaActual.size();
                                     procesado(listaActual, indice);
                                     Thread.sleep(2000L);
                                 } else {
+                                    System.out.println("paso 3.2.3 --> sin ciclos actExp -->" + actExp);
                                     Boolean a = true;
                                     PantallaDto pant = new PantallaDto();
                                     if (actExp.equals("i")) {
@@ -757,8 +799,9 @@ public class EjecutorController {
                                         cancelacion.setFlag(0);
                                         cancelacion.setOpion(opIniCance);
                                         cancelacion.setProceso(nombreArchivo);
-                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
-
+                                        String alterna = (printScreen2(screen)).trim();
+                                        alterna = URLEncoder.encode(alterna, "UTF-8");
+                                        cancelacion.setAlterna((alterna));
                                         cancelacion.setFecha(new Date());
                                         cancelacion = service.crearCancelacion3(cancelacion);
                                         Boolean point = Boolean.TRUE;
@@ -786,16 +829,20 @@ public class EjecutorController {
                                     }
                                 }
                             } else {
+                                System.out.println("procesado");
                                 procesado(listaActual, indice);
                                 Thread.sleep(2000L);
                             }
                         }
                     } else {
+
                         throw new ExcepcionBaseMsn("Codigo:0002, Error Rota Conexion remota con el servidor AS400");
                     }
 
                     indice++;
                 } else if (scrits.contains("oper")) {
+
+                    System.out.println("paso 4");
                     localizadorPantalla(dataForm);
                     boolean flag2 = true;
                     if (sessions.isConnected()) {
@@ -805,6 +852,7 @@ public class EjecutorController {
                         if (!idCiclo.equals("0")) {
                             switch (idCiclo) {
                                 case "f":
+                                    System.out.println("paso ---> 4.1 del Oper --> for");
                                     if (numInt > 0) {
                                         for (int j = 0; j < numInt; j++) {
                                             operaciones(dataForm, 2);
@@ -848,8 +896,9 @@ public class EjecutorController {
                                                         cancelacion.setFlag(0);
                                                         cancelacion.setOpion(opIniCance);
                                                         cancelacion.setProceso(nombreArchivo);
-                                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
-
+                                                        String alterna = (printScreen2(screen)).trim();
+                                                        alterna = URLEncoder.encode(alterna, "UTF-8");
+                                                        cancelacion.setAlterna((alterna));
                                                         cancelacion.setFecha(new Date());
                                                         cancelacion = service.crearCancelacion3(cancelacion);
                                                         Boolean point = Boolean.TRUE;
@@ -890,49 +939,61 @@ public class EjecutorController {
                                     break;
 
                                 case "w":
+                                    System.out.println("paso --->4.1 del Oper --> dowhile");
                                     // segmento de ciclo while de la operaciones
                                     do {
                                         operaciones(dataForm, 2);
                                         int longitud = listaActual.size();
                                         String pantalla = getScreenAsString(screen).trim();
                                         if (expresionId > 0) {
+                                            System.out.println("paso --> 4.2 si hay expresion regular");
                                             Export expReq = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
                                             if (expReq.getFlag()) {
+                                                System.out.println("paso --> 4.3a");
                                                 if (procesado(listaActual, indice)) {
                                                     log.info(printScreen1(screen));
                                                     flag2 = false;
                                                 }
                                             } else {
+                                                System.out.println("paso --> 4.3b");
                                                 Boolean a = true;
                                                 PantallaDto pant = new PantallaDto();
                                                 if (actExp.equals("i")) {
+                                                    System.out.println("paso --> 3b-i");
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     //throw new ExcepcionBaseMsn("Codigo:0020,\n" + printScreen1(screen));
                                                     throw new ExcepcionBaseMsn("Codigo:0020,\n" + expReq.getDescripcion());
                                                 } else if (actExp.equals("e")) {
+                                                    System.out.println("paso --> 3b-e");
                                                     pant.setTextoPantalla(printScreen(screen));
                                                     //throw new ExcepcionBaseMsn("Codigo:0010,\n" + printScreen1(screen));
                                                     throw new ExcepcionBaseMsn("Codigo:0010,\n" + expReq.getDescripcion());
                                                 } else if (actExp.equals("r")) {
-
+                                                    System.out.println("paso --> 3b-r");
                                                     Export expReq2 = new Export();
                                                     do {
+                                                        System.out.println("paso --> 4");
                                                         operaExpresion(expReq.getAccion());
                                                         expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
+                                                        System.out.println("paso --> 6  " + (!expReq2.getFlag()));
                                                     } while ((!expReq2.getFlag()));
 
                                                     if (procesado(listaActual, indice)) {
                                                         log.info(printScreen1(screen));
+                                                        System.out.println("paso -->7 " + printScreen1(screen));
                                                         break;
                                                     }
 
                                                 } else if (actExp.equals("s")) {
+                                                    System.out.println("paso --> 3b-s");
 
                                                     CancelacionesDto cancelacion = new CancelacionesDto();
                                                     cancelacion.setFlag(0);
                                                     cancelacion.setOpion(opIniCance);
                                                     cancelacion.setProceso(nombreArchivo);
-                                                    cancelacion.setAlterna(((printScreen2(screen)).trim()));
+                                                    String alterna = (printScreen2(screen)).trim();
+                                                    alterna = URLEncoder.encode(alterna, "UTF-8");
+                                                    cancelacion.setAlterna((alterna));
 
                                                     cancelacion.setFecha(new Date());
                                                     cancelacion = service.crearCancelacion3(cancelacion);
@@ -970,6 +1031,7 @@ public class EjecutorController {
                                     break;
                             }
                         } else {
+                            System.out.println("paso ---> 1 del Oper --> ciclos cero 0");
                             operaciones(dataForm, 2);
                             int longitud = listaActual.size();
                             String pantalla = getScreenAsString(screen).trim();
@@ -998,7 +1060,7 @@ public class EjecutorController {
                                         do {
                                             operaExpresion(expReq.getAccion());
                                             expReq2 = ExpresionesAS4(getScreenAsString(screen).trim(), expresionId);
-                                            
+
                                         } while ((!expReq2.getFlag()));
 
                                         if (procesado(listaActual, indice)) {
@@ -1013,7 +1075,11 @@ public class EjecutorController {
                                         cancelacion.setFlag(0);
                                         cancelacion.setOpion(opIniCance);
                                         cancelacion.setProceso(nombreArchivo);
-                                        cancelacion.setAlterna(((printScreen2(screen)).trim()));
+                                        String alterna = (printScreen2(screen)).trim();
+                                        System.out.println("sin codificacion UTF-8  --> "+alterna);
+                                        alterna = URLEncoder.encode(alterna, "UTF-8");
+                                        System.out.println("codificado UTF-8  --> "+alterna);
+                                        cancelacion.setAlterna((alterna));
 
                                         cancelacion.setFecha(new Date());
                                         cancelacion = service.crearCancelacion3(cancelacion);
@@ -1061,7 +1127,7 @@ public class EjecutorController {
             cierreOperaciones(export.getListaPantallaCierre());
         } catch (ExcepcionBaseMsn ex) {
             String procesado = ex.getMessage();
-            
+
             //sessions.disconnect();
             cierreOperaciones(export.getListaPantallaCierre());
             if (util.comparadorDeCaracteres(procesado, "0020")) {
@@ -1131,7 +1197,7 @@ public class EjecutorController {
         String s = getScreenAsString(screen);
         String text = "";
         int indice = 0;
-        for (int i = 0; i < sf.getFieldCount(); ) {
+        for (int i = 0; i < sf.getFieldCount();) {
             InputDto input = new InputDto();
             if (!sf.getField(i).isBypassField()) {
                 int pos = sf.getField(i).startPos();
@@ -1141,12 +1207,13 @@ public class EjecutorController {
                 }
                 text = s.substring(posIni, pos);
                 String[] labelInput = text.split("\\.");
-                //System.out.println(" texto del label -->  "+labelInput[0].trim());
+                System.out.println(" texto del label -->  " + labelInput[0].trim());
                 if (labelInput[0].trim().equals("===>")) {
+                    indice = i;
                     break;
                 }
-            }          
-            indice = i;
+            }
+
             ++i;
         }
         return indice;
