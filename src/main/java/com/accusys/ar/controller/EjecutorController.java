@@ -231,7 +231,7 @@ public class EjecutorController {
                 }
             }
             sb = limpiarTexto(sb);
-            textoAux = utilEncrips.encrypt(key, iv, sb);
+            //textoAux = utilEncrips.encrypt(key, iv, sb);
             return sb;
         } catch (Exception ex) {
 
@@ -1076,35 +1076,63 @@ public class EjecutorController {
                                         cancelacion.setOpion(opIniCance);
                                         cancelacion.setProceso(nombreArchivo);
                                         String alterna = (printScreen2(screen)).trim();
-                                        System.out.println("sin codificacion UTF-8  --> "+alterna);
+                                        System.out.println("sin codificacion UTF-8  --> " + alterna);
                                         alterna = URLEncoder.encode(alterna, "UTF-8");
-                                        System.out.println("codificado UTF-8  --> "+alterna);
+                                        System.out.println("codificado UTF-8  --> " + alterna);
                                         cancelacion.setAlterna((alterna));
 
                                         cancelacion.setFecha(new Date());
                                         cancelacion = service.crearCancelacion3(cancelacion);
                                         Boolean point = Boolean.TRUE;
+                                        System.out.println("Seleccionar una  Opcion para la Cancelacion en el modulo de Cancelaciones en el Administrador");
+                                        String opcion = "";
                                         while (point) {
                                             if (cancelacion.getFlag().toString().equals("1")) {
                                                 point = Boolean.FALSE;
                                                 flag2 = false;
                                             } else {
                                                 if (!cancelacion.getOpion().equals(opIniCance)) {
+                                                   if (!cancelacion.getOpion().equals(opcion)){
+                                                   if (cancelacion.getOpion().equals("C")) {
+                                                       opcion ="C";
+                                                        log.info("La Opción Seleccionada es la:\"C\" de Cancelación");
+                                                    } else if (cancelacion.getOpion().equals("D")) {
+                                                        opcion ="D";
+                                                        log.info("La Opción Seleccionada es la: \"D\" de Saltar");
+                                                    } else if (cancelacion.getOpion().equals("I")) {
+                                                        opcion ="I";
+                                                        log.info("La Opción Seleccionada es la:\"I\"  de Ignorar");
+                                                    } else if (cancelacion.getOpion().equals("R")) {
+                                                        opcion ="R";
+                                                        log.info("La Opción Seleccionada es la:\"R\"  de Reintentarn");
+                                                    }
+                                                   }
+                                                    
                                                     operaCancelacion(expReq.getAccion(), cancelacion.getOpion());
                                                     if ((ExpresionesAS4(getScreenAsString(screen).trim(), expresionId).getFlag())) {
+                                                        log.info("pantalla final del proceso : "+printScreen1(screen));
+                                                        System.out.println("pantalla final del proceso : "+printScreen1(screen));
                                                         point = Boolean.FALSE;
                                                         flag2 = false;
                                                         service.getEliminarCancelacionById(cancelacion.getId());
+                                                    }else {
+                                                    log.info("La Opción Seleccionada no cambio a la pantalla esperada modifiqué su selección");
                                                     }
                                                 }
                                             }
-                                            System.out.println("generar proceso de pedir valor del campo ");
+                                            
                                             Thread.sleep(10000L);
                                             if (point) {
-                                                cancelacion = service.getCancelById(cancelacion.getId());
+                                                try {
+                                                    cancelacion = service.getCancelById(cancelacion.getId());
+                                                } catch (Exception e) {
+                                                    break;
+                                                }
+                                                
                                             }
                                         }
-                                        log.info(printScreen1(screen));
+                                        log.info("Proceso finalizado");
+                                        System.out.println(" Proceso finalizado");
                                     }
                                 }
                             } else {
