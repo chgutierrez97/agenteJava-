@@ -29,9 +29,9 @@ public class AgenteSpringBootConsoleApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {   
-       //String[] nombres = {"1623943783357.json"};//,"P1-F2:ACCUSYS"
+       String[] nombres = {"tsc1626278500039.json","P1-F2:ACCUSYSd"};//,"P1-F2:ACCUSYS"
 //       String[] nombres = {"tsc1624482344456.json"};//,"P1-F2:ACCUSYS"
-//        args = nombres;
+       args = nombres;
         if (args.length >0) {
             ejecutor.importarTransaccion(args);
         } else {

@@ -506,12 +506,15 @@ public class EjecutorController {
                     } else {
                         System.out.println("paso 3.1  --> conec --> else w_deviceName");
                         host = dataForm[7];
+                        host = findParam(host);
                         host = host.split(":")[1];
                         host = host.replace("*", "");
                         usuario = dataForm[8];
+                        usuario = findParam(usuario);
                         usuario = usuario.split(":")[1];
                         usuario = usuario.replace("*", "");
                         clave = dataForm[9];
+                        clave = findParam(clave);
                         clave = clave.split(":")[1];
                         clave = clave.replace("*", "");
 
@@ -744,14 +747,16 @@ public class EjecutorController {
                             ScreenFields sf = screen.getScreenFields();
                             Thread.sleep(3000L);
                             ScreenField userField = sf.getField(0);
+                            System.out.println("paso 3.2.3 --> sin ciclos usuario -> "+usuario);
                             userField.setString(usuario);
                             ScreenField passField = sf.getField(1);
+                            System.out.println("paso 3.2.3 --> sin ciclos clave --> "+clave);
                             passField.setString(clave);
                             screen.sendKeys("[enter]");
                             Thread.sleep(3000L);
 
                             log.info(printScreen1(screen));
-                            // System.out.println(pantalla);
+                             System.out.println("panatalla -->"+pantalla);
                             if (expresionId > 0) {
                                 System.out.println("paso 3.2.3 --> sin ciclos expresionId -->" + expresionId);
                                 // Export expReq = ExpresionesAS4(pantalla, expresionId);
